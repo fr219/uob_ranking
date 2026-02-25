@@ -1,7 +1,7 @@
 ## 📊 Database Architecture (ERD)
 The following diagram illustrates the relational structure of the system, highlighting how ranking cycles, institutional tasks, and user responses are interconnected.
 
-![Database ERD Diagram](image_30e0e1.png)
+![Database ERD Diagram](/assets/ERD.png)
 
 ---
 
