@@ -1,0 +1,3195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Rankings Tracker — UoB Department Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --blue-dark:#0A2D52;--blue:#0D3B66;--blue-light:#164E8A;
+  --gold:#C8A951;--gold-light:#E2C97A;--gold-pale:#FBF4E3;
+  --white:#fff;--bg:#F2F5FB;--text:#1A1A2E;--text-muted:#6B7280;
+  --border:#DDE3EE;--sidebar-w:264px;--header-h:66px;
+  --radius:10px;--radius-lg:14px;
+  --shadow:0 2px 12px rgba(13,59,102,0.07);
+  --shadow-md:0 6px 28px rgba(13,59,102,0.12);
+  --trans:0.22s ease;
+}
+html{font-size:16px;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+button{cursor:pointer;border:none;outline:none;font-family:inherit;}
+input,select,textarea{font-family:inherit;outline:none;}
+
+/* HEADER */
+.header{position:fixed;top:0;left:0;right:0;height:var(--header-h);background:var(--blue-dark);display:flex;align-items:center;padding:0 24px;z-index:100;border-bottom:2px solid var(--gold);box-shadow:0 2px 20px rgba(0,0,0,0.22);}
+.header-logo{display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.logo-fb{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--gold);background:#fff;border-radius:6px;padding:4px 10px;}
+.logo-text{display:flex;flex-direction:column;line-height:1.25;}
+.lt{font-family:'Cormorant Garamond',serif;font-size:15px;color:#fff;letter-spacing:0.3px;}
+.ls{font-size:10px;color:var(--gold-light);font-weight:300;letter-spacing:0.8px;text-transform:uppercase;}
+.header-spacer{flex:1;}
+.header-right{display:flex;align-items:center;gap:12px;}
+.header-notif{position:relative;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:background var(--trans);}
+.header-user{display:flex;align-items:center;gap:10px;cursor:pointer;padding:6px 10px;border-radius:var(--radius);transition:background var(--trans);}
+.h-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#059669,#34D399);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0;}
+.h-name{font-size:13px;font-weight:600;color:#fff;}
+.h-role{font-size:11px;color:var(--gold-light);font-weight:300;}
+.hamburger{display:none;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:6px;}
+
+/* SIDEBAR */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:140;}
+.sidebar-overlay.open{display:block;}
+.sidebar{position:fixed;top:var(--header-h);left:0;width:var(--sidebar-w);height:calc(100vh - var(--header-h));background:var(--blue);display:flex;flex-direction:column;z-index:90;transition:transform var(--trans);overflow-y:auto;}
+.sb-label{font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:rgba(255,255,255,0.28);font-weight:700;padding:20px 20px 7px;}
+.sidebar-nav{flex:1;padding:10px 0;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;color:rgba(255,255,255,0.58);font-size:13.5px;cursor:pointer;transition:all var(--trans);margin:2px 10px;border-radius:8px;position:relative;user-select:none;}
+.nav-item:hover{background:rgba(255,255,255,0.08);color:#fff;}
+.nav-item.active{background:rgba(200,169,81,0.15);color:var(--gold-light);font-weight:600;}
+.nav-item.active::before{content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);width:3px;height:26px;background:var(--gold);border-radius:0 3px 3px 0;}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--gold);color:var(--blue-dark);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;}
+.sidebar-bottom{padding:12px 10px;border-top:1px solid rgba(255,255,255,0.07);}
+.nav-logout{color:rgba(255,100,100,0.75)!important;}
+
+/* MAIN */
+.main{margin-left:var(--sidebar-w);margin-top:var(--header-h);padding:26px 30px;min-height:calc(100vh - var(--header-h));}
+.page{display:none;animation:fadeIn 0.22s ease;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+
+/* PAGE HEADER */
+.ph{margin-bottom:22px;}
+.ph h1{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--blue-dark);margin-bottom:2px;}
+.ph p{color:var(--text-muted);font-size:13px;}
+
+/* CARD */
+.card{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;margin-bottom:22px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);gap:12px;}
+.card-title{font-size:14px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:7px;}
+.ci{color:var(--gold);}
+.card-body{padding:20px;}
+
+/* ── TASKS PAGE LAYOUT: cards left + timeline right ── */
+.tasks-layout{display:grid;grid-template-columns:1fr 300px;gap:22px;align-items:start;}
+
+/* RANKING CARDS GRID */
+.rankings-grid{display:grid;gap:16px;}
+
+/* RANKING CARD */
+.ranking-card{background:#fff;border-radius:var(--radius-lg);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;display:flex;transition:all var(--trans);cursor:pointer;position:relative;min-height:150px;animation:slideUp 0.5s ease-out;}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.ranking-card:hover{box-shadow:var(--shadow-md);transform:translateY(-4px);}
+.ranking-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,var(--blue),var(--blue-light));}
+.ranking-card.rank-qs::before{background:linear-gradient(90deg,#0A9396,#06B6D4);}
+.ranking-card.rank-the::before{background:linear-gradient(90deg,#9333EA,#7C3AED);}
+.ranking-card.rank-impact::before{background:linear-gradient(90deg,#DC2626,#EF4444);}
+.ranking-card.rank-green::before{background:linear-gradient(90deg,#059669,#10B981);}
+.rc-thumbnail{width:150px;height:100%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:60px;position:relative;overflow:hidden;transition:transform var(--trans);}
+.ranking-card:hover .rc-thumbnail{transform:scale(1.08);}
+.rc-thumbnail::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.15),rgba(255,255,255,0));}
+.rc-thumbnail.bg-green{background:linear-gradient(135deg,#D1FAE5,#A7F3D0);}
+.rc-thumbnail.bg-blue{background:linear-gradient(135deg,#DBEAFE,#BFDBFE);}
+.rc-thumbnail.bg-purple{background:linear-gradient(135deg,#F3E8FF,#E9D5FF);}
+.rc-thumbnail.bg-red{background:linear-gradient(135deg,#FEE2E2,#FECACA);}
+.rc-content{flex:1;padding:16px 18px;display:flex;flex-direction:column;justify-content:space-between;}
+.rc-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px;}
+.rc-title{font-size:15px;font-weight:600;color:var(--text);line-height:1.3;flex:1;}
+.rc-description{font-size:12px;color:var(--text-muted);line-height:1.4;margin-bottom:10px;}
+.rc-meta{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.rc-meta-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-muted);}
+.rc-button{background:var(--gold);color:var(--blue-dark);border:none;padding:7px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;transition:all var(--trans);flex-shrink:0;}
+.rc-button:hover{background:var(--gold-light);transform:scale(1.05);}
+.rc-button:active{transform:scale(0.98);}
+
+/* ── TIMELINE PANEL ── */
+.timeline-panel{background:#fff;border-radius:var(--radius-lg);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;position:sticky;top:calc(var(--header-h) + 26px);}
+.tl-header{padding:16px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.tl-header-left{display:flex;flex-direction:column;gap:2px;}
+.tl-month{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--blue-dark);}
+.tl-year{font-size:11px;color:var(--text-muted);font-weight:500;letter-spacing:0.5px;}
+.tl-nav{display:flex;gap:4px;}
+.tl-nav button{width:26px;height:26px;border-radius:6px;background:var(--bg);border:1px solid var(--border);color:var(--text-muted);font-size:13px;display:flex;align-items:center;justify-content:center;transition:all var(--trans);cursor:pointer;}
+.tl-nav button:hover{background:var(--blue-dark);color:#fff;border-color:var(--blue-dark);}
+
+/* mini calendar */
+.tl-calendar{padding:12px 14px;border-bottom:1px solid var(--border);}
+.cal-days-header{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:5px;}
+.cal-day-name{text-align:center;font-size:10px;font-weight:600;color:var(--text-muted);padding:3px 0;letter-spacing:0.4px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:11.5px;color:var(--text-muted);border-radius:6px;cursor:pointer;transition:all var(--trans);position:relative;font-weight:500;}
+.cal-cell:hover{background:var(--bg);}
+.cal-cell.empty{cursor:default;}
+.cal-cell.today{background:var(--blue-dark);color:#fff;font-weight:700;}
+.cal-cell.has-deadline::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--gold);}
+.cal-cell.today.has-deadline::after{background:var(--gold-light);}
+.cal-cell.deadline-near{background:rgba(200,169,81,0.12);color:var(--blue-dark);font-weight:600;}
+
+/* schedule list */
+.tl-schedule-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px 8px;}
+.tl-sch-title{font-size:12px;font-weight:700;color:var(--text);letter-spacing:0.3px;}
+.tl-see-all{font-size:11px;color:var(--blue);font-weight:600;cursor:pointer;text-decoration:none;background:none;border:none;padding:0;}
+.tl-see-all:hover{text-decoration:underline;}
+
+.tl-items{padding:0 14px 14px;display:flex;flex-direction:column;gap:8px;}
+.tl-item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:var(--bg);border:1px solid transparent;cursor:pointer;transition:all var(--trans);animation:slideUp 0.4s ease both;}
+.tl-item:hover{background:#fff;border-color:var(--border);box-shadow:0 2px 10px rgba(13,59,102,0.07);}
+
+.tl-date-box{flex-shrink:0;width:36px;text-align:center;}
+.tl-day-num{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;line-height:1;color:var(--blue-dark);}
+.tl-day-name{font-size:9px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;}
+
+.tl-divider{width:1px;background:var(--border);flex-shrink:0;align-self:stretch;margin:2px 0;}
+.tl-item:hover .tl-divider{background:var(--gold);}
+
+.tl-info{flex:1;min-width:0;}
+.tl-item-title{font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tl-item-sub{font-size:11px;color:var(--text-muted);line-height:1.4;}
+.tl-item-time{display:flex;align-items:center;gap:4px;margin-top:5px;}
+.tl-time-badge{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;}
+.badge-green{background:rgba(5,150,105,0.1);color:#065F46;}
+.badge-blue{background:rgba(13,59,102,0.1);color:var(--blue-dark);}
+.badge-purple{background:rgba(147,51,234,0.1);color:#6B21A8;}
+.badge-red{background:rgba(220,38,38,0.1);color:#991B1B;}
+.badge-gold{background:rgba(200,169,81,0.15);color:#7a5f00;}
+
+/* COMING SOON BANNER */
+.coming-soon{background:linear-gradient(135deg,rgba(147,51,234,0.1),rgba(124,58,237,0.1));border:1px solid rgba(147,51,234,0.2);border-radius:var(--radius-lg);padding:60px 30px;text-align:center;margin-bottom:22px;animation:fadeIn 0.5s ease;}
+.coming-soon-icon{font-size:64px;margin-bottom:20px;display:inline-block;animation:bounce 2s infinite;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.coming-soon h2{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--text);margin-bottom:12px;}
+.coming-soon p{color:var(--text-muted);font-size:13px;line-height:1.6;max-width:500px;margin:0 auto;}
+.coming-soon-badge{display:inline-block;background:rgba(147,51,234,0.15);color:#6B21A8;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;margin-top:16px;}
+
+/* FORM SECTIONS */
+.q-section{background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:12px;overflow:hidden;}
+.section-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#f8f8f8;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.12s;user-select:none;}
+.section-hdr:hover{background:#efefef;}
+.section-hdr h3{font-size:14px;font-weight:600;color:var(--text);}
+.section-toggle{font-size:14px;color:var(--text-muted);}
+.section-body.collapsed{display:none;}
+.q-row{padding:14px 16px;border-bottom:1px solid #f0f0f0;display:grid;gap:16px;align-items:start;}
+.q-row:last-child{border-bottom:none;}
+.q-row:hover{background:#fafafa;}
+.q-label{font-size:13px;line-height:1.6;color:var(--text);}
+.q-input{display:flex;flex-direction:column;gap:8px;}
+.url-input{padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;color:var(--text);}
+.url-input:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 2px rgba(13,59,102,0.1);}
+.number-input{padding:8px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;color:var(--text);}
+.number-input:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 2px rgba(13,59,102,0.1);}
+.text-area{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;color:var(--text);resize:vertical;min-height:80px;}
+.text-area:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 2px rgba(13,59,102,0.1);}
+.radio-group{display:flex;flex-direction:column;gap:8px;}
+.radio-item{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text);}
+.radio-item input{cursor:pointer;}
+.check-group{display:flex;flex-direction:column;gap:8px;}
+.check-item{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text);}
+.check-item input{cursor:pointer;}
+
+/* TOAST */
+.toast{position:fixed;bottom:26px;right:26px;background:var(--blue-dark);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 8px 28px rgba(0,0,0,0.22);transform:translateY(70px);opacity:0;transition:all 0.28s ease;z-index:300;border-left:3px solid var(--gold);max-width:300px;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* RESPONSIVE */
+@media(max-width:1100px){
+  .tasks-layout{grid-template-columns:1fr 270px;}
+}
+@media(max-width:900px){
+  .tasks-layout{grid-template-columns:1fr;}
+  .timeline-panel{position:static;}
+}
+@media(max-width:768px){
+  .hamburger{display:flex;}
+  .sidebar{transform:translateX(-100%);z-index:150;box-shadow:4px 0 20px rgba(0,0,0,0.28);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;padding:18px 14px;}
+  .ranking-card{height:auto;flex-direction:column;}
+  .rc-thumbnail{width:100%;height:120px;}
+  .logo-text,.h-role{display:none;}
+  .ph h1{font-size:24px;}
+  .rc-title{font-size:14px;}
+  .rc-description{font-size:11px;}
+  .rc-meta{font-size:11px;}
+  .ranking-card:hover{transform:none;}
+  .rc-thumbnail{width:100%;font-size:44px;}
+}
+
+/* ════════════════════════════════════════
+   SUSTAINABILITY FORM — QS HUB STYLE
+   ════════════════════════════════════════ */
+
+/* Back button */
+.sust-back-btn{
+  background:#e8e8e8;border:1px solid #ccc;color:var(--text);
+  padding:7px 16px;border-radius:6px;font-size:13px;font-weight:600;
+  display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+  transition:all 0.18s;
+}
+.sust-back-btn:hover{background:var(--blue-dark);color:#fff;border-color:var(--blue-dark);}
+
+/* Notices */
+.sust-notice{border-radius:6px;padding:12px 16px;margin-bottom:12px;font-size:13px;line-height:1.65;}
+.sust-notice-green{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);color:#065F46;}
+.sust-notice-blue{background:#EBF5FB;border:1px solid #AED6F1;color:#1A5276;}
+
+/* Toolbar */
+.sust-legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.sust-leg-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-muted);}
+.sleg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.sleg-dot.accepted{background:#27AE60;}
+.sleg-dot.rejected{background:#E74C3C;}
+.sleg-pending{color:#F39C12;font-size:13px;}
+.sleg-queried{font-size:13px;}
+.sleg-none{color:#aaa;font-size:14px;}
+
+/* Two-col outer */
+.sust-outer{display:grid;grid-template-columns:1fr 240px;gap:16px;align-items:start;}
+
+/* Sections */
+.sust-section{background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:12px;overflow:hidden;}
+.sust-sec-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 16px;background:#fff;cursor:pointer;
+  border-bottom:1px solid var(--border);user-select:none;
+  transition:background 0.12s;font-size:14px;font-weight:600;color:var(--text);
+}
+.sust-sec-hdr:hover{background:#fafafa;}
+.sust-sec-body.collapsed{display:none;}
+
+/* Sub-section header — orange like QS Hub */
+.sust-subsec-hdr{
+  display:grid;
+  grid-template-columns:1fr 200px 70px 110px;
+  padding:8px 16px;
+  background:#F5CBA7;
+  border-bottom:1px solid #E59866;
+  font-size:12px;font-weight:600;color:#784212;
+}
+
+/* Question row */
+.sust-qrow{
+  display:grid;
+  grid-template-columns:1fr 200px 70px 110px;
+  padding:13px 16px;
+  border-bottom:1px solid #f0f0f0;
+  align-items:start;
+  cursor:pointer;
+  transition:background 0.14s;
+  position:relative;
+}
+.sust-qrow:last-child{border-bottom:none;}
+.sust-qrow:hover{background:#FAFAFA;}
+.sust-qrow.sust-indent{padding-left:32px;background:#FDFDF8;}
+.sust-qrow.sust-indent:hover{background:#F5F5EC;}
+
+/* Selected/active question highlight */
+.sust-qrow.selected{
+  background:#EBF5FB !important;
+  border-left:3px solid #26A69A;
+  padding-left:13px;
+}
+.sust-qrow.sust-indent.selected{padding-left:29px;}
+
+.sust-qlabel{font-size:13px;line-height:1.6;color:var(--text);padding-right:14px;}
+.sust-sync{color:var(--text-muted);font-size:11px;margin-left:3px;}
+
+/* Input area */
+.sust-qinput{padding-right:8px;}
+.sust-radio-group{display:flex;flex-direction:column;gap:6px;}
+.sust-radio{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;color:var(--text);}
+.sust-radio input{accent-color:#26A69A;width:14px;height:14px;}
+.sust-check-group{display:flex;flex-direction:column;gap:5px;}
+.sust-check{display:flex;align-items:flex-start;gap:7px;cursor:pointer;font-size:12.5px;color:var(--text);line-height:1.4;}
+.sust-check input{accent-color:#26A69A;width:13px;height:13px;margin-top:2px;flex-shrink:0;}
+.sust-url-row{display:flex;align-items:center;gap:6px;margin-top:4px;}
+.sust-url{
+  flex:1;padding:6px 9px;border:1px solid #ccc;border-radius:4px;
+  font-size:12.5px;color:var(--text);min-width:0;
+  transition:border-color 0.15s;
+}
+.sust-url:focus{border-color:#26A69A;outline:none;box-shadow:0 0 0 2px rgba(38,166,154,0.15);}
+.sust-open-btn{
+  padding:5px 10px;background:#95A5A6;border:none;border-radius:4px;
+  color:#fff;font-size:11.5px;white-space:nowrap;cursor:pointer;
+  transition:background 0.15s;flex-shrink:0;
+}
+.sust-open-btn:hover{background:#7F8C8D;}
+
+.sust-or{font-size:11.5px;color:var(--text-muted);text-align:center;margin:5px 0;}
+.sust-number{
+  width:100%;padding:6px 9px;border:1px solid #ccc;border-radius:4px;font-size:13px;
+}
+.sust-number:focus{border-color:#26A69A;outline:none;box-shadow:0 0 0 2px rgba(38,166,154,0.15);}
+.sust-textarea{
+  width:100%;padding:6px 9px;border:1px solid #ccc;border-radius:4px;
+  font-size:12.5px;resize:vertical;min-height:68px;
+}
+.sust-textarea:focus{border-color:#26A69A;outline:none;box-shadow:0 0 0 2px rgba(38,166,154,0.15);}
+.sust-wc{font-size:11px;color:var(--text-muted);text-align:right;margin-top:3px;}
+
+/* Status column */
+.sust-status{display:flex;align-items:flex-start;justify-content:center;padding-top:2px;}
+.sust-icon{font-size:17px;cursor:help;}
+.sust-icon.pending{color:#F39C12;}
+.sust-icon.accepted{color:#27AE60;}
+.sust-icon.rejected{color:#E74C3C;}
+.sust-icon.queried{color:#3498DB;}
+.sust-icon.none{color:#D5D8DC;}
+
+/* Date column */
+.sust-date{font-size:12px;color:var(--text-muted);padding-top:2px;line-height:1.5;}
+.sust-date strong{display:block;color:var(--text);font-weight:500;}
+
+/* Side panel */
+.sust-side-panel{
+  background:#fff;border:1px solid var(--border);border-radius:8px;
+  overflow:hidden;position:sticky;top:calc(var(--header-h) + 16px);
+  transition:opacity 0.2s;
+}
+.sust-sp-header{
+  background:#26A69A;color:#fff;padding:10px 12px;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:8px;
+  font-size:13px;font-weight:600;line-height:1.4;
+}
+.sust-sp-header #sp-q-title{flex:1;font-size:12.5px;font-weight:500;}
+.sust-sp-menu{width:24px;height:24px;background:rgba(255,255,255,0.2);border:none;border-radius:3px;color:#fff;font-size:13px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.sust-sp-tabs{display:flex;border-bottom:1px solid var(--border);}
+.sust-sp-tab{flex:1;padding:8px 0;text-align:center;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-muted);transition:all 0.15s;}
+.sust-sp-tab.active{color:#26A69A;border-bottom-color:#26A69A;font-weight:600;}
+.sust-sp-body{padding:14px;font-size:13px;line-height:1.65;color:var(--text);min-height:100px;}
+
+/* Sticky save bar */
+.sust-save-bar{
+  position:sticky;bottom:0;
+  background:#fff;border-top:1px solid var(--border);
+  padding:10px 0;margin-top:16px;
+  display:flex;justify-content:flex-end;gap:10px;
+  z-index:50;
+}
+.sust-save-btn{padding:8px 26px;background:#26A69A;border:none;border-radius:6px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.15s;}
+.sust-save-btn:hover{background:#00897B;}
+
+
+/* Responsive */
+@media(max-width:1000px){
+  .sust-outer{grid-template-columns:1fr;}
+  .sust-side-panel{position:static;}
+  .sust-subsec-hdr,.sust-qrow{grid-template-columns:1fr 160px 60px 90px;}
+}
+@media(max-width:680px){
+  .sust-subsec-hdr,.sust-qrow{grid-template-columns:1fr 1fr;}
+  .sust-status,.sust-date,.sust-subsec-hdr div:nth-child(3),.sust-subsec-hdr div:nth-child(4){display:none;}
+}
+/* ════════════════════════════════════════
+   SUSTAINABILITY FORM — QS HUB STYLE
+   ════════════════════════════════════════ */
+
+/* Back button */
+.sust-back-btn{
+  background:#e8e8e8;border:1px solid #ccc;color:var(--text);
+  padding:7px 16px;border-radius:6px;font-size:13px;font-weight:600;
+  display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+  transition:all 0.18s;
+}
+.sust-back-btn:hover{background:var(--blue-dark);color:#fff;border-color:var(--blue-dark);}
+
+/* Notices */
+.sust-notice{border-radius:6px;padding:12px 16px;margin-bottom:12px;font-size:13px;line-height:1.65;}
+.sust-notice-green{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);color:#065F46;}
+.sust-notice-blue{background:#EBF5FB;border:1px solid #AED6F1;color:#1A5276;}
+
+/* Toolbar */
+.sust-legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.sust-leg-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-muted);}
+.sleg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.sleg-dot.accepted{background:#27AE60;}
+.sleg-dot.rejected{background:#E74C3C;}
+.sleg-pending{color:#F39C12;font-size:13px;}
+.sleg-queried{font-size:13px;}
+.sleg-none{color:#aaa;font-size:14px;}
+
+/* Two-col outer */
+.sust-outer{display:grid;grid-template-columns:1fr 240px;gap:16px;align-items:start;}
+
+/* Sections */
+.sust-section{background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:12px;overflow:hidden;}
+.sust-sec-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 16px;background:#fff;cursor:pointer;
+  border-bottom:1px solid var(--border);user-select:none;
+  transition:background 0.12s;font-size:14px;font-weight:600;color:var(--text);
+}
+.sust-sec-hdr:hover{background:#fafafa;}
+.sust-sec-body.collapsed{display:none;}
+
+/* Sub-section header — orange like QS Hub */
+.sust-subsec-hdr{
+  display:grid;
+  grid-template-columns:1fr 200px 70px 110px 100px;
+  padding:8px 16px;
+  background:#F5CBA7;
+  border-bottom:1px solid #E59866;
+  font-size:12px;font-weight:600;color:#784212;
+}
+
+/* Question row */
+.sust-qrow{
+  display:grid;
+  grid-template-columns:1fr 200px 70px 110px 100px;
+  padding:13px 16px;
+  border-bottom:1px solid #f0f0f0;
+  align-items:start;
+  cursor:pointer;
+  transition:background 0.14s;
+  position:relative;
+}
+.sust-qrow:last-child{border-bottom:none;}
+.sust-qrow:hover{background:#FAFAFA;}
+.sust-qrow.sust-indent{padding-left:32px;background:#FDFDF8;}
+.sust-qrow.sust-indent:hover{background:#F5F5EC;}
+
+/* Selected/active question highlight */
+.sust-qrow.selected{
+  background:#EBF5FB !important;
+  border-left:3px solid #26A69A;
+  padding-left:13px;
+}
+.sust-qrow.sust-indent.selected{padding-left:29px;}
+
+.sust-qlabel{font-size:13px;line-height:1.6;color:var(--text);padding-right:14px;}
+.sust-sync{color:var(--text-muted);font-size:11px;margin-left:3px;}
+
+/* Input area */
+.sust-qinput{padding-right:8px;}
+.sust-radio-group{display:flex;flex-direction:column;gap:6px;}
+.sust-radio{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;color:var(--text);}
+.sust-radio input{accent-color:#26A69A;width:14px;height:14px;}
+.sust-check-group{display:flex;flex-direction:column;gap:5px;}
+.sust-check{display:flex;align-items:flex-start;gap:7px;cursor:pointer;font-size:12.5px;color:var(--text);line-height:1.4;}
+.sust-check input{accent-color:#26A69A;width:13px;height:13px;margin-top:2px;flex-shrink:0;}
+.sust-url-row{display:flex;align-items:center;gap:6px;margin-top:4px;}
+.sust-url{
+  flex:1;padding:6px 9px;border:1px solid #ccc;border-radius:4px;
+  font-size:12.5px;color:var(--text);min-width:0;
+  transition:border-color 0.15s;
+}
+.sust-url:focus{border-color:#26A69A;outline:none;box-shadow:0 0 0 2px rgba(38,166,154,0.15);}
+.sust-open-btn{
+  padding:5px 10px;background:#95A5A6;border:none;border-radius:4px;
+  color:#fff;font-size:11.5px;white-space:nowrap;cursor:pointer;
+  transition:background 0.15s;flex-shrink:0;
+}
+.sust-open-btn:hover{background:#7F8C8D;}
+
+.sust-or{font-size:11.5px;color:var(--text-muted);text-align:center;margin:5px 0;}
+.sust-number{
+  width:100%;padding:6px 9px;border:1px solid #ccc;border-radius:4px;font-size:13px;
+}
+.sust-number:focus{border-color:#26A69A;outline:none;box-shadow:0 0 0 2px rgba(38,166,154,0.15);}
+.sust-textarea{
+  width:100%;padding:6px 9px;border:1px solid #ccc;border-radius:4px;
+  font-size:12.5px;resize:vertical;min-height:68px;
+}
+.sust-textarea:focus{border-color:#26A69A;outline:none;box-shadow:0 0 0 2px rgba(38,166,154,0.15);}
+.sust-wc{font-size:11px;color:var(--text-muted);text-align:right;margin-top:3px;}
+
+/* Status column */
+.sust-status{display:flex;align-items:flex-start;justify-content:center;padding-top:2px;}
+.sust-icon{font-size:17px;cursor:help;}
+.sust-icon.pending{color:#F39C12;}
+.sust-icon.accepted{color:#27AE60;}
+.sust-icon.rejected{color:#E74C3C;}
+.sust-icon.queried{color:#3498DB;}
+.sust-icon.none{color:#D5D8DC;}
+
+/* Date column */
+.sust-date{font-size:12px;color:var(--text-muted);padding-top:2px;line-height:1.5;}
+.sust-date strong{display:block;color:var(--text);font-weight:500;}
+
+/* Action column */
+.sust-action{display:flex;align-items:flex-start;justify-content:center;padding-top:1px;}
+.sust-submit-btn{
+  padding:5px 13px;border:none;border-radius:5px;font-size:12px;font-weight:700;
+  cursor:pointer;white-space:nowrap;transition:all 0.18s;
+  background:#26A69A;color:#fff;letter-spacing:0.2px;
+}
+.sust-submit-btn:hover{background:#00897B;transform:scale(1.04);}
+.sust-edit-btn{
+  padding:5px 13px;border:1.5px solid #26A69A;border-radius:5px;font-size:12px;font-weight:700;
+  cursor:pointer;white-space:nowrap;transition:all 0.18s;
+  background:#fff;color:#26A69A;
+}
+.sust-edit-btn:hover{background:#E8F8F5;transform:scale(1.04);}
+
+/* Confirmation modal */
+.sust-modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.48);
+  z-index:500;display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity 0.22s;
+}
+.sust-modal-overlay.open{opacity:1;pointer-events:all;}
+.sust-modal{
+  background:#fff;border-radius:12px;padding:0;width:420px;max-width:92vw;
+  box-shadow:0 20px 60px rgba(0,0,0,0.22);
+  transform:translateY(18px) scale(0.97);transition:transform 0.22s;overflow:hidden;
+}
+.sust-modal-overlay.open .sust-modal{transform:translateY(0) scale(1);}
+.sust-modal-header{
+  background:#26A69A;padding:18px 22px;
+  display:flex;align-items:center;gap:12px;
+}
+.sust-modal-header-icon{font-size:22px;}
+.sust-modal-header h3{font-size:16px;font-weight:700;color:#fff;margin:0;}
+.sust-modal-body{padding:20px 22px 8px;}
+.sust-modal-body p{font-size:14px;color:#2C3E50;line-height:1.65;margin-bottom:12px;}
+.sust-modal-checklist{list-style:none;padding:0;margin:0 0 12px;display:flex;flex-direction:column;gap:7px;}
+.sust-modal-checklist li{
+  display:flex;align-items:flex-start;gap:9px;font-size:13px;color:#2C3E50;
+  background:#F0FDF9;border:1px solid #A7F3D0;border-radius:6px;padding:8px 11px;
+}
+.sust-modal-checklist li .ck{color:#26A69A;font-size:15px;flex-shrink:0;margin-top:1px;}
+.sust-modal-warning{
+  background:#FEF3C7;border:1px solid #F59E0B;border-radius:6px;
+  padding:10px 12px;font-size:12.5px;color:#92400E;line-height:1.55;
+  display:flex;gap:8px;align-items:flex-start;margin-bottom:16px;
+}
+.sust-modal-warning span{flex-shrink:0;font-size:15px;}
+.sust-modal-footer{
+  padding:14px 22px 18px;
+  display:flex;justify-content:flex-end;gap:10px;
+  border-top:1px solid #f0f0f0;
+}
+.sust-modal-cancel{
+  padding:9px 20px;background:#fff;border:1.5px solid #ccc;border-radius:7px;
+  font-size:13.5px;font-weight:600;color:#555;cursor:pointer;transition:background 0.15s;
+}
+.sust-modal-cancel:hover{background:#f5f5f5;}
+.sust-modal-confirm{
+  padding:9px 22px;background:#26A69A;border:none;border-radius:7px;
+  font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.15s;
+}
+.sust-modal-confirm:hover{background:#00897B;}
+
+/* Side panel */
+.sust-side-panel{
+  background:#fff;border:1px solid var(--border);border-radius:8px;
+  overflow:hidden;position:sticky;top:calc(var(--header-h) + 16px);
+  transition:opacity 0.2s;
+}
+.sust-sp-header{
+  background:#26A69A;color:#fff;padding:10px 12px;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:8px;
+  font-size:13px;font-weight:600;line-height:1.4;
+}
+.sust-sp-header #sp-q-title{flex:1;font-size:12.5px;font-weight:500;}
+.sust-sp-menu{width:24px;height:24px;background:rgba(255,255,255,0.2);border:none;border-radius:3px;color:#fff;font-size:13px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.sust-sp-tabs{display:flex;border-bottom:1px solid var(--border);}
+.sust-sp-tab{flex:1;padding:8px 0;text-align:center;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-muted);transition:all 0.15s;}
+.sust-sp-tab.active{color:#26A69A;border-bottom-color:#26A69A;font-weight:600;}
+.sust-sp-body{padding:14px;font-size:13px;line-height:1.65;color:var(--text);min-height:100px;}
+
+/* Sticky save bar */
+.sust-save-bar{
+  position:sticky;bottom:0;
+  background:#fff;border-top:1px solid var(--border);
+  padding:10px 0;margin-top:16px;
+  display:flex;justify-content:flex-end;gap:10px;
+  z-index:50;
+}
+.sust-save-btn{padding:8px 26px;background:#26A69A;border:none;border-radius:6px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.15s;}
+.sust-save-btn:hover{background:#00897B;}
+
+
+/* Responsive */
+@media(max-width:1000px){
+  .sust-outer{grid-template-columns:1fr;}
+  .sust-side-panel{position:static;}
+  .sust-subsec-hdr,.sust-qrow{grid-template-columns:1fr 160px 60px 90px 90px;}
+}
+@media(max-width:680px){
+  .sust-subsec-hdr,.sust-qrow{grid-template-columns:1fr auto;}
+  .sust-status,.sust-date,.sust-subsec-hdr div:nth-child(3),.sust-subsec-hdr div:nth-child(4){display:none;}
+}
+
+/* ════════════════════════════
+   PROGRESS PAGE — WAVE CIRCLES
+   ════════════════════════════ */
+.prog-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:20px;
+}
+.prog-card{
+  background:#fff;border-radius:var(--radius-lg);border:1px solid var(--border);
+  box-shadow:var(--shadow);padding:22px 18px 16px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  transition:all var(--trans);animation:slideUp 0.5s ease both;
+}
+.prog-card:hover{box-shadow:var(--shadow-md);transform:translateY(-4px);}
+.prog-wave-wrap{width:160px;height:160px;flex-shrink:0;}
+.prog-svg{width:160px;height:160px;overflow:visible;}
+.prog-pct{
+  font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;
+  fill:#fff;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.3));
+}
+.prog-sub-lbl{font-size:11px;fill:rgba(255,255,255,0.85);font-weight:500;letter-spacing:0.4px;}
+.prog-info{display:flex;align-items:flex-start;gap:9px;width:100%;}
+.prog-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.prog-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:2px;}
+.prog-stat{font-size:11.5px;color:var(--text-muted);}
+.prog-bar-wrap{width:100%;height:5px;background:#E5E7EB;border-radius:99px;overflow:hidden;}
+.prog-bar{height:100%;border-radius:99px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);}
+.prog-deadline{font-size:11.5px;color:var(--text-muted);align-self:flex-start;}
+@media(max-width:700px){.prog-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:440px){.prog-grid{grid-template-columns:1fr;}}
+/* ════════════════════════════
+   HOME PAGE
+   ════════════════════════════ */
+
+/* Welcome banner */
+.home-welcome{
+  background:linear-gradient(120deg,var(--blue-dark) 0%,var(--blue-light) 100%);
+  border-radius:var(--radius-lg);padding:24px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;gap:16px;flex-wrap:wrap;
+  box-shadow:0 4px 24px rgba(13,59,102,0.18);
+}
+.hw-greeting{font-size:12px;color:rgba(255,255,255,0.65);font-weight:500;letter-spacing:0.6px;text-transform:uppercase;margin-bottom:4px;}
+.hw-name{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:#fff;margin-bottom:4px;}
+.hw-wave{font-style:normal;}
+.hw-sub{font-size:13px;color:rgba(255,255,255,0.7);}
+.hw-right{display:flex;gap:12px;flex-wrap:wrap;}
+.hw-stat-pill{
+  background:rgba(255,255,255,0.12);backdrop-filter:blur(4px);
+  border:1px solid rgba(255,255,255,0.18);border-radius:10px;
+  padding:10px 18px;text-align:center;min-width:80px;
+}
+.hw-pill-gold{background:rgba(200,169,81,0.2);border-color:rgba(200,169,81,0.35);}
+.hw-pill-val{display:block;font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;line-height:1;}
+.hw-pill-lbl{display:block;font-size:11px;color:rgba(255,255,255,0.7);margin-top:3px;white-space:nowrap;}
+
+/* Stat cards row */
+.home-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.home-stat-card{
+  background:#fff;border-radius:var(--radius-lg);border:1px solid var(--border);
+  box-shadow:var(--shadow);padding:16px 14px;
+  display:flex;flex-direction:column;align-items:flex-start;gap:6px;
+  transition:all var(--trans);
+}
+.home-stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.hsc-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:4px;}
+.hsc-val{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--blue-dark);line-height:1;}
+.hsc-lbl{font-size:12px;color:var(--text-muted);font-weight:500;}
+
+/* Main grid */
+.home-main-grid{display:grid;grid-template-columns:1fr 300px;gap:18px;align-items:start;}
+.home-left-col{display:flex;flex-direction:column;gap:18px;}
+.home-right-col{display:flex;flex-direction:column;gap:18px;}
+
+/* Generic card */
+.home-card{
+  background:#fff;border-radius:var(--radius-lg);border:1px solid var(--border);
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.home-card-full{height:100%;}
+.home-card-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--border);
+}
+.home-card-title{font-size:13.5px;font-weight:700;color:var(--text);}
+.home-see-all{
+  font-size:12px;font-weight:600;color:var(--blue);background:none;
+  border:none;cursor:pointer;padding:0;transition:color var(--trans);
+}
+.home-see-all:hover{color:var(--blue-dark);text-decoration:underline;}
+
+/* Bar chart */
+.home-chart-wrap{padding:16px 12px 8px;}
+.home-bar-svg{width:100%;display:block;}
+.hchart-lbl{font-size:9px;fill:var(--text-muted);font-family:'DM Sans',sans-serif;}
+.hchart-xlabel{font-size:9.5px;fill:var(--text-muted);font-family:'DM Sans',sans-serif;}
+.h-bar{cursor:pointer;transition:opacity 0.2s;}
+.h-bar:hover{opacity:0.82;}
+.h-bar-pct{font-size:9.5px;fill:var(--text-muted);font-family:'DM Sans',sans-serif;text-anchor:middle;opacity:0;transition:opacity 0.3s;}
+
+/* My tasks mini list */
+.home-tasks-list{display:flex;flex-direction:column;}
+.home-task-row{
+  display:flex;align-items:center;gap:12px;padding:12px 18px;
+  border-bottom:1px solid var(--border);cursor:pointer;
+  transition:background var(--trans);
+}
+.home-task-row:last-child{border-bottom:none;}
+.home-task-row:hover{background:var(--bg);}
+.htr-thumb{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.htr-info{flex:1;min-width:0;}
+.htr-name{font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.htr-mini-bar-wrap{height:4px;background:#E5E7EB;border-radius:99px;overflow:hidden;}
+.htr-mini-bar{height:100%;border-radius:99px;transition:width 1.2s cubic-bezier(.4,0,.2,1);}
+.htr-pct{font-size:13px;font-weight:700;}
+.htr-due{font-size:10.5px;color:var(--text-muted);}
+
+/* Deadlines list */
+.home-deadlines-list{display:flex;flex-direction:column;}
+.home-dl-item{
+  display:flex;align-items:center;gap:12px;padding:13px 16px;
+  border-bottom:1px solid var(--border);cursor:pointer;
+  transition:background var(--trans);position:relative;overflow:hidden;
+}
+.home-dl-item:last-child{border-bottom:none;}
+.home-dl-item:hover{background:var(--bg);}
+.hdl-bar{position:absolute;left:0;top:0;bottom:0;width:3px;}
+.hdl-date-box{
+  flex-shrink:0;width:40px;text-align:center;
+  background:var(--bg);border-radius:8px;padding:5px 4px;border:1px solid var(--border);
+}
+.hdl-day{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--blue-dark);line-height:1;}
+.hdl-mon{font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;}
+.hdl-info{flex:1;min-width:0;}
+.hdl-name{font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hdl-sub{font-size:11px;color:var(--text-muted);margin-bottom:4px;}
+.hdl-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;display:inline-block;}
+.hdl-urgency{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;flex-shrink:0;white-space:nowrap;}
+.hdl-urgent{background:rgba(220,38,38,0.1);color:#991B1B;}
+.hdl-soon{background:rgba(200,169,81,0.15);color:#7a5f00;}
+.hdl-ok{background:rgba(5,150,105,0.1);color:#065F46;}
+
+/* Responsive */
+@media(max-width:1100px){.home-main-grid{grid-template-columns:1fr 260px;}}
+@media(max-width:900px){
+  .home-main-grid{grid-template-columns:1fr;}
+  .home-stats-row{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:540px){.home-stats-row{grid-template-columns:repeat(2,1fr);}.home-welcome{flex-direction:column;}}
+/* ════════════════
+   QS WUR FORM
+   ════════════════ */
+.wur-multi-hdr{grid-template-columns:1fr 80px 80px 70px 70px 60px 110px 100px 100px !important;}
+.wur-numrow .sust-qrow,
+.wur-numrow{grid-template-columns:1fr 1fr 110px 120px 100px;}
+.wur-num-inputs{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+.wur-num{
+  border:1px solid var(--border);border-radius:5px;padding:5px 7px;
+  font-size:12px;width:100%;color:var(--text);background:#FAFBFF;
+  transition:border-color var(--trans);
+}
+.wur-num:focus{outline:none;border-color:var(--blue);background:#fff;}
+.wur-sel{
+  border:1px solid var(--border);border-radius:5px;padding:4px 6px;
+  font-size:12px;color:var(--text);background:#FAFBFF;cursor:pointer;
+}
+.wur-dropdown-cell{display:flex;align-items:center;}
+/* Highlight international faculty row */
+.wur-highlight-row{
+  display:grid;grid-template-columns:1fr 1fr 110px;gap:0;
+  background:linear-gradient(90deg,rgba(10,147,150,0.12),rgba(56,189,248,0.08));
+  border-top:2px solid #0A9396;border-bottom:1px solid rgba(10,147,150,0.25);
+  padding:8px 12px;align-items:center;
+}
+.wur-hl-label{font-size:12.5px;font-weight:700;color:#0A9396;}
+.wur-hl-inputs{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+.wur-hl-input{background:rgba(255,255,255,0.7)!important;border-color:rgba(10,147,150,0.4)!important;}
+/* Fee rows */
+.wur-fee-row{grid-template-columns:1fr 220px 110px 120px 100px !important;}
+.wur-fee-inputs{display:grid;grid-template-columns:1fr 90px;gap:6px;align-items:center;}
+/* Employment rows */
+.wur-emp-row{grid-template-columns:1fr 1fr 110px 120px 100px !important;}
+.wur-emp-inputs{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;}
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- HEADER -->
+<header class="header">
+  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+  <div class="header-logo">
+    <div class="logo-fb"><img src="/assets/image/UOB-new-logo.png" style="height:68px;width:auto;object-fit:contain;"></div>
+    <div class="logo-text"><span class="lt">Rankings Tracker</span><span class="ls">Department Portal</span></div>
+  </div>
+  <div class="header-spacer"></div>
+  <div class="header-right">
+    <div class="header-notif" onclick="showPage('notifications')">🔔</div>
+    <div class="header-user">
+      <div class="h-avatar">IT</div>
+      <div>
+        <div class="h-name">IT &amp; Digital Services</div>
+        <div class="h-role">Department User</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <nav class="sidebar-nav">
+    <div class="sb-label">Navigation</div>
+    <div class="nav-item active" data-page="home" onclick="showPage('home',this)"><span class="nav-icon">🏠</span>Home</div>
+    <div class="nav-item" data-page="tasks" onclick="showPage('tasks',this)"><span class="nav-icon">📋</span>My Ranking Forms</div>
+    <div class="nav-item" data-page="sustainability" onclick="showPage('sustainability',this)" style="padding-left:32px;font-size:12.5px;"><span class="nav-icon" style="font-size:13px">🌿</span>QS Sustainability</div>
+    <div class="nav-item" data-page="qs-wur" onclick="showPage('qs-wur',this)" style="padding-left:32px;font-size:12.5px;"><span class="nav-icon" style="font-size:13px">🏆</span>QS WUR</div>
+    <div class="nav-item" data-page="the-wur" onclick="showPage('the-wur',this)" style="padding-left:32px;font-size:12.5px;"><span class="nav-icon" style="font-size:13px">📚</span>THE WUR</div>
+    <div class="nav-item" data-page="the-impact" onclick="showPage('the-impact',this)" style="padding-left:32px;font-size:12.5px;"><span class="nav-icon" style="font-size:13px">🎯</span>THE Impact</div>
+    <div class="nav-item" data-page="green-metric" onclick="showPage('green-metric',this)" style="padding-left:32px;font-size:12.5px;"><span class="nav-icon" style="font-size:13px">♻️</span>Green Metric</div>
+    <div class="nav-item" data-page="progress" onclick="showPage('progress',this)"><span class="nav-icon">📊</span>Progress</div>
+    <div class="nav-item" data-page="notifications" onclick="showPage('notifications',this)"><span class="nav-icon">🔔</span>Notifications</div>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="nav-item nav-logout" onclick="window.location.href='login.html'"><span class="nav-icon">🚪</span>Logout</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ======= HOME ======= -->
+<div class="page active" id="page-home">
+
+  <!-- ── WELCOME BANNER ── -->
+  <div class="home-welcome">
+    <div class="hw-left">
+      <div class="hw-greeting" id="hw-greeting">Good morning</div>
+      <h1 class="hw-name">IT &amp; Digital Services <span class="hw-wave">👋</span></h1>
+      <p class="hw-sub">Here's your rankings submission overview for today.</p>
+    </div>
+  </div>
+
+  <!-- ── STAT CARDS ROW ── -->
+  <div class="home-stats-row">
+    <div class="home-stat-card">
+      <div class="hsc-icon" style="background:rgba(13,59,102,0.1);color:var(--blue-dark)">📋</div>
+      <div class="hsc-val" data-count="35">0</div>
+      <div class="hsc-lbl">Total Questions</div>
+    </div>
+    <div class="home-stat-card">
+      <div class="hsc-icon" style="background:rgba(200,169,81,0.15);color:#7a5f00">⏳</div>
+      <div class="hsc-val" data-count="12">0</div>
+      <div class="hsc-lbl">In Progress</div>
+    </div>
+    <div class="home-stat-card">
+      <div class="hsc-icon" style="background:rgba(5,150,105,0.12);color:#065F46">✓</div>
+      <div class="hsc-val" data-count="8">0</div>
+      <div class="hsc-lbl">Submitted</div>
+    </div>
+    <div class="home-stat-card">
+      <div class="hsc-icon" style="background:rgba(220,38,38,0.1);color:#991B1B">🔥</div>
+      <div class="hsc-val" data-count="3">0</div>
+      <div class="hsc-lbl">Deadlines Soon</div>
+    </div>
+  </div>
+
+  <!-- ── MAIN GRID: left col + right panel ── -->
+  <div class="home-main-grid">
+
+    <!-- LEFT COLUMN -->
+    <div class="home-left-col">
+
+      <!-- Bar Chart Card -->
+      <div class="home-card">
+        <div class="home-card-hdr">
+          <span class="home-card-title">📊 Ranking Completion Overview</span>
+          <button class="home-see-all" onclick="showPage('progress')">View Details →</button>
+        </div>
+        <div class="home-chart-wrap">
+          <svg id="homeSvg" class="home-bar-svg" viewBox="0 0 520 200" preserveAspectRatio="xMidYMid meet">
+            <!-- Grid lines -->
+            <line x1="60" y1="10"  x2="510" y2="10"  stroke="#E5E7EB" stroke-width="1"/>
+            <line x1="60" y1="50"  x2="510" y2="50"  stroke="#E5E7EB" stroke-width="1"/>
+            <line x1="60" y1="90"  x2="510" y2="90"  stroke="#E5E7EB" stroke-width="1"/>
+            <line x1="60" y1="130" x2="510" y2="130" stroke="#E5E7EB" stroke-width="1"/>
+            <line x1="60" y1="170" x2="510" y2="170" stroke="#E5E7EB" stroke-width="1"/>
+            <!-- Y labels -->
+            <text x="52" y="14"  class="hchart-lbl" text-anchor="end">100%</text>
+            <text x="52" y="54"  class="hchart-lbl" text-anchor="end">75%</text>
+            <text x="52" y="94"  class="hchart-lbl" text-anchor="end">50%</text>
+            <text x="52" y="134" class="hchart-lbl" text-anchor="end">25%</text>
+            <text x="52" y="174" class="hchart-lbl" text-anchor="end">0%</text>
+            <!-- Bars -->
+            <!-- QS Sus: 35% -->
+            <rect x="80"  y="170" width="52" height="0" rx="5" fill="url(#bg-sus)"  class="h-bar" data-h="56"  data-pct="35"/>
+            <text x="106"  y="187" class="hchart-xlabel" text-anchor="middle">QS Sus</text>
+            <!-- QS WUR: 60% -->
+            <rect x="170" y="170" width="52" height="0" rx="5" fill="url(#bg-qswur)" class="h-bar" data-h="96"  data-pct="60"/>
+            <text x="196" y="187" class="hchart-xlabel" text-anchor="middle">QS WUR</text>
+            <!-- THE WUR: 20% -->
+            <rect x="260" y="170" width="52" height="0" rx="5" fill="url(#bg-thewur)" class="h-bar" data-h="32" data-pct="20"/>
+            <text x="286" y="187" class="hchart-xlabel" text-anchor="middle">THE WUR</text>
+            <!-- THE Impact: 45% -->
+            <rect x="350" y="170" width="52" height="0" rx="5" fill="url(#bg-impact)" class="h-bar" data-h="72" data-pct="45"/>
+            <text x="376" y="187" class="hchart-xlabel" text-anchor="middle">Impact</text>
+            <!-- GreenMetric: 10% -->
+            <rect x="440" y="170" width="52" height="0" rx="5" fill="url(#bg-gmtric)" class="h-bar" data-h="16" data-pct="10"/>
+            <text x="466" y="187" class="hchart-xlabel" text-anchor="middle">Green</text>
+            <!-- % labels (animated in by JS) -->
+            <text x="106"  y="170" class="h-bar-pct" id="bpct-0">35%</text>
+            <text x="196"  y="170" class="h-bar-pct" id="bpct-1">60%</text>
+            <text x="286"  y="170" class="h-bar-pct" id="bpct-2">20%</text>
+            <text x="376"  y="170" class="h-bar-pct" id="bpct-3">45%</text>
+            <text x="466"  y="170" class="h-bar-pct" id="bpct-4">10%</text>
+            <defs>
+              <linearGradient id="bg-sus"    x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#34D399"/><stop offset="100%" stop-color="#059669"/></linearGradient>
+              <linearGradient id="bg-qswur"  x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#38BDF8"/><stop offset="100%" stop-color="#0A9396"/></linearGradient>
+              <linearGradient id="bg-thewur" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C084FC"/><stop offset="100%" stop-color="#7C3AED"/></linearGradient>
+              <linearGradient id="bg-impact" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FCA5A5"/><stop offset="100%" stop-color="#DC2626"/></linearGradient>
+              <linearGradient id="bg-gmtric" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#86EFAC"/><stop offset="100%" stop-color="#16A34A"/></linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+
+      <!-- My Tasks mini cards -->
+      <div class="home-card">
+        <div class="home-card-hdr">
+          <span class="home-card-title">📋 My Ranking Forms</span>
+          <button class="home-see-all" onclick="showPage('tasks')">See All →</button>
+        </div>
+        <div class="home-tasks-list">
+          <div class="home-task-row" onclick="showPage('sustainability')">
+            <div class="htr-thumb" style="background:linear-gradient(135deg,#D1FAE5,#A7F3D0)">🌿</div>
+            <div class="htr-info">
+              <div class="htr-name">QS Sustainability 2025</div>
+              <div class="htr-mini-bar-wrap"><div class="htr-mini-bar" style="width:35%;background:#059669"></div></div>
+            </div>
+          </div>
+          <div class="home-task-row" onclick="showPage('qs-wur')">
+            <div class="htr-thumb" style="background:linear-gradient(135deg,#DBEAFE,#BFDBFE)">🏆</div>
+            <div class="htr-info">
+              <div class="htr-name">QS World University Rankings 2025</div>
+              <div class="htr-mini-bar-wrap"><div class="htr-mini-bar" style="width:60%;background:#0A9396"></div></div>
+            </div>
+          </div>
+          <div class="home-task-row" onclick="showPage('the-wur')">
+            <div class="htr-thumb" style="background:linear-gradient(135deg,#F3E8FF,#E9D5FF)">📚</div>
+            <div class="htr-info">
+              <div class="htr-name">Times Higher Education WUR 2025</div>
+              <div class="htr-mini-bar-wrap"><div class="htr-mini-bar" style="width:20%;background:#7C3AED"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /home-left-col -->
+
+    <!-- RIGHT PANEL: upcoming deadlines -->
+    <div class="home-right-col">
+      <div class="home-card home-card-full">
+        <div class="home-card-hdr">
+          <span class="home-card-title">🗓 Upcoming Deadlines</span>
+        </div>
+        <div class="home-deadlines-list">
+          <div class="home-dl-item" onclick="showPage('qs-wur')">
+            <div class="hdl-bar" style="background:#0A9396"></div>
+            <div class="hdl-date-box">
+              <div class="hdl-day">31</div>
+              <div class="hdl-mon">Mar</div>
+            </div>
+            <div class="hdl-info">
+              <div class="hdl-name">QS World University Rankings</div>
+              <div class="hdl-sub">Data submission deadline</div>
+              <span class="hdl-badge" style="background:rgba(10,147,150,0.1);color:#0A9396">QS WUR</span>
+            </div>
+            <div class="hdl-urgency hdl-urgent">Urgent</div>
+          </div>
+          <div class="home-dl-item" onclick="showPage('the-wur')">
+            <div class="hdl-bar" style="background:#7C3AED"></div>
+            <div class="hdl-date-box">
+              <div class="hdl-day">30</div>
+              <div class="hdl-mon">Apr</div>
+            </div>
+            <div class="hdl-info">
+              <div class="hdl-name">THE World University Rankings</div>
+              <div class="hdl-sub">Data submission deadline</div>
+              <span class="hdl-badge" style="background:rgba(124,58,237,0.1);color:#7C3AED">THE WUR</span>
+            </div>
+            <div class="hdl-urgency hdl-soon">Soon</div>
+          </div>
+          <div class="home-dl-item" onclick="showPage('the-impact')">
+            <div class="hdl-bar" style="background:#DC2626"></div>
+            <div class="hdl-date-box">
+              <div class="hdl-day">15</div>
+              <div class="hdl-mon">May</div>
+            </div>
+            <div class="hdl-info">
+              <div class="hdl-name">THE Impact Rankings</div>
+              <div class="hdl-sub">Data submission deadline</div>
+              <span class="hdl-badge" style="background:rgba(220,38,38,0.1);color:#DC2626">THE Impact</span>
+            </div>
+            <div class="hdl-urgency hdl-soon">Soon</div>
+          </div>
+          <div class="home-dl-item" onclick="showPage('sustainability')">
+            <div class="hdl-bar" style="background:#059669"></div>
+            <div class="hdl-date-box">
+              <div class="hdl-day">15</div>
+              <div class="hdl-mon">Jun</div>
+            </div>
+            <div class="hdl-info">
+              <div class="hdl-name">QS Sustainability Rankings</div>
+              <div class="hdl-sub">Data submission deadline</div>
+              <span class="hdl-badge" style="background:rgba(5,150,105,0.1);color:#059669">QS Sus</span>
+            </div>
+            <div class="hdl-urgency hdl-ok">On Track</div>
+          </div>
+          <div class="home-dl-item" onclick="showPage('green-metric')">
+            <div class="hdl-bar" style="background:#16A34A"></div>
+            <div class="hdl-date-box">
+              <div class="hdl-day">30</div>
+              <div class="hdl-mon">Jun</div>
+            </div>
+            <div class="hdl-info">
+              <div class="hdl-name">UI GreenMetric Ranking</div>
+              <div class="hdl-sub">Data submission deadline</div>
+              <span class="hdl-badge" style="background:rgba(22,163,74,0.1);color:#16A34A">GreenMetric</span>
+            </div>
+            <div class="hdl-urgency hdl-ok">On Track</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /home-right-col -->
+
+  </div><!-- /home-main-grid -->
+</div>
+
+
+<!-- ======= MY TASKS (CARDS + TIMELINE) ======= -->
+<div class="page" id="page-tasks">
+  <div class="ph">
+    <h1>My Ranking Forms</h1>
+    <p>Access and complete your institutional data submissions</p>
+  </div>
+
+  <div class="tasks-layout">
+
+    <!-- LEFT: ranking cards -->
+    <div class="rankings-grid">
+      <!-- QS SUSTAINABILITY -->
+      <div class="ranking-card rank-green" onclick="showPage('sustainability')">
+        <div class="rc-thumbnail bg-green">🌿</div>
+        <div class="rc-content">
+          <div class="rc-header">
+            <div class="rc-title">QS Sustainability Rankings 2025</div>
+          </div>
+          <p class="rc-description">Complete environmental, social and governance metrics with supporting evidence.</p>
+          <div class="rc-meta">
+            <div class="rc-meta-item">📅 Due: Jun 15</div>
+            <button class="rc-button" onclick="event.stopPropagation();showPage('sustainability')">Open →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- QS WUR -->
+      <div class="ranking-card rank-qs" onclick="showPage('qs-wur')">
+        <div class="rc-thumbnail bg-blue">🏆</div>
+        <div class="rc-content">
+          <div class="rc-header">
+            <div class="rc-title">QS World University Rankings 2025</div>
+          </div>
+          <p class="rc-description">Academic reputation, employer reputation, faculty-to-student ratio and more.</p>
+          <div class="rc-meta">
+            <div class="rc-meta-item">📅 Due: Mar 31</div>
+            <button class="rc-button" onclick="event.stopPropagation();showPage('qs-wur')">Open →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- THE WUR -->
+      <div class="ranking-card rank-the" onclick="showPage('the-wur')">
+        <div class="rc-thumbnail bg-purple">📚</div>
+        <div class="rc-content">
+          <div class="rc-header">
+            <div class="rc-title">Times Higher Education World Rankings 2025</div>
+          </div>
+          <p class="rc-description">Teaching, research, citations, internationalization and industry collaboration metrics.</p>
+          <div class="rc-meta">
+            <div class="rc-meta-item">📅 Due: Apr 30</div>
+            <button class="rc-button" onclick="event.stopPropagation();showPage('the-wur')">Open →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- THE IMPACT -->
+      <div class="ranking-card rank-impact" onclick="showPage('the-impact')">
+        <div class="rc-thumbnail bg-red">🎯</div>
+        <div class="rc-content">
+          <div class="rc-header">
+            <div class="rc-title">THE Impact Rankings 2025</div>
+          </div>
+          <p class="rc-description">SDG impact metrics measuring institutional contributions to sustainable development goals.</p>
+          <div class="rc-meta">
+            <div class="rc-meta-item">📅 Due: May 15</div>
+            <button class="rc-button" onclick="event.stopPropagation();showPage('the-impact')">Open →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- GREEN METRIC -->
+      <div class="ranking-card rank-green" onclick="showPage('green-metric')">
+        <div class="rc-thumbnail bg-green">♻️</div>
+        <div class="rc-content">
+          <div class="rc-header">
+            <div class="rc-title">UI Green Metric Ranking 2025</div>
+          </div>
+          <p class="rc-description">Environmental sustainability metrics for campus operations and green initiatives.</p>
+          <div class="rc-meta">
+            <div class="rc-meta-item">📅 Due: Jun 30</div>
+            <button class="rc-button" onclick="event.stopPropagation();showPage('green-metric')">Open →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: timeline panel -->
+    <div class="timeline-panel">
+      <!-- Month header + nav -->
+      <div class="tl-header">
+        <div class="tl-header-left">
+          <div class="tl-month" id="tl-month-label">March 2025</div>
+          <div class="tl-year">Submission Deadlines</div>
+        </div>
+        <div class="tl-nav">
+          <button onclick="changeMonth(-1)" title="Previous">‹</button>
+          <button onclick="changeMonth(1)" title="Next">›</button>
+        </div>
+      </div>
+
+      <!-- Mini calendar -->
+      <div class="tl-calendar">
+        <div class="cal-days-header">
+          <div class="cal-day-name">Mo</div>
+          <div class="cal-day-name">Tu</div>
+          <div class="cal-day-name">We</div>
+          <div class="cal-day-name">Th</div>
+          <div class="cal-day-name">Fr</div>
+          <div class="cal-day-name">Sa</div>
+          <div class="cal-day-name">Su</div>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+
+      <!-- Schedule list -->
+      <div class="tl-schedule-header">
+        <span class="tl-sch-title">Schedule</span>
+        <button class="tl-see-all" onclick="showPage('progress')">See All</button>
+      </div>
+      <div class="tl-items" id="tlItems"></div>
+    </div>
+
+  </div><!-- /tasks-layout -->
+</div>
+
+
+<!-- ======= QS SUSTAINABILITY (FULL FORM — QS HUB STYLE) ======= -->
+<div class="page" id="page-sustainability">
+
+  <!-- Back button -->
+  <div style="margin-bottom:16px;">
+    <button class="sust-back-btn" onclick="showPage('tasks')">← Back to My Ranking Forms</button>
+  </div>
+
+  <div class="ph">
+    <h1>QS Sustainability Rankings 2025</h1>
+    <p>Complete environmental, social and governance metrics with supporting evidence</p>
+  </div>
+
+  <!-- Deadline notice -->
+  <div class="sust-notice sust-notice-green">
+    🌿 <strong>QS Sustainability Rankings 2025</strong> — Deadline: <strong>June 15, 2025</strong>. You can refer to QS Sustainability Ranking guidelines for instructions and definitions.
+  </div>
+  <div class="sust-notice sust-notice-blue">
+    ☆ All submissions are taken to be a true confirmation of that data point by the university. Indicators marked <strong>↔</strong> will automatically update if they also appear in other QS ranking forms.
+  </div>
+
+  <!-- Two-column layout: form + side panel -->
+  <div class="sust-outer">
+    <div class="sust-form-main">
+
+<!-- ═══ SECTION 1 — ANNUAL REPORT ═══ -->
+<div class="sust-section" id="sec-annual">
+  <div class="sust-sec-hdr" onclick="toggleSection('annual')">
+    <h3>Annual Report</h3><span id="tog-annual">▲</span>
+  </div>
+  <div class="sust-sec-body" id="body-annual">
+    <div class="sust-subsec-hdr">
+      <div>Annual Report <span class="sust-sync">↔</span>
+      <div>Action</div>
+    </div>
+      <div>URL / Response</div><div>Status</div><div>Updated at</div><div>Action</div>
+    </div>
+    <div class="sust-qrow" data-def="0" onclick="selectRow(this)">
+      <div class="sust-qlabel">Does your institution publish an annual report? <span class="sust-sync">↔</span></div>
+      <div class="sust-qinput">
+        <div class="sust-radio-group">
+          <label class="sust-radio"><input type="radio" name="ar_publish" value="yes" checked/> Yes</label>
+          <label class="sust-radio"><input type="radio" name="ar_publish" value="no"/> No</label>
+        </div>
+      </div>
+      <div class="sust-status"><span class="sust-icon pending" title="Pending">⏳</span></div>
+      <div class="sust-date"><strong>Feb 11, 2026</strong></div>
+      <div class="sust-action"><button class="sust-edit-btn" onclick="editRow(this);event.stopPropagation()">✏ Edit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="1" onclick="selectRow(this)">
+      <div class="sust-qlabel">If Yes, please upload or provide the link to your last annual report. <span class="sust-sync">↔</span></div>
+      <div class="sust-qinput">
+        <div class="sust-url-row">
+          <input type="url" class="sust-url" placeholder="https://..." id="ar_link"/>
+          <button class="sust-open-btn" onclick="openLink('ar_link')">↗ Open</button>
+        </div>
+      </div>
+      <div class="sust-status"><span class="sust-icon pending">⏳</span></div>
+      <div class="sust-date"><strong>Feb 11, 2026</strong></div>
+      <div class="sust-action"><button class="sust-edit-btn" onclick="editRow(this);event.stopPropagation()">✏ Edit</button></div>
+    
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 2 — ENVIRONMENTAL IMPACT ═══ -->
+<div class="sust-section" id="sec-env">
+  <div class="sust-sec-hdr" onclick="toggleSection('env')">
+    <h3>Environmental Impact</h3><span id="tog-env">▲</span>
+  </div>
+  <div class="sust-sec-body" id="body-env">
+
+    <div class="sust-subsec-hdr"><div>Environmental Sustainability
+      <div>Action</div>
+    </div><div>URL / Value</div><div>Status</div><div>Updated At</div></div>
+
+    <div class="sust-qrow" data-def="2" onclick="selectRow(this)">
+      <div class="sust-qlabel">Link to your institution's sustainability/climate action policy. (ES4)</div>
+      <div class="sust-qinput"><div class="sust-url-row"><input type="url" class="sust-url" placeholder="https://..." id="es4_policy"/><button class="sust-open-btn" onclick="openLink('es4_policy')">↗ Open</button></div></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="3" onclick="selectRow(this)">
+      <div class="sust-qlabel">Does your institution provide dedicated training on Environment aspects of Sustainability? (ES*)</div>
+      <div class="sust-qinput">
+        <div class="sust-radio-group"><label class="sust-radio"><input type="radio" name="es_training" value="yes"/> Yes</label><label class="sust-radio"><input type="radio" name="es_training" value="no"/> No</label></div>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow sust-indent" data-def="3" onclick="selectRow(this)">
+      <div class="sust-qlabel">How many hours of training on Environment aspects per employee?</div>
+      <div class="sust-qinput"><input type="number" class="sust-number" placeholder="e.g. 4" min="0" id="es_train_hours"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow sust-indent" data-def="3" onclick="selectRow(this)">
+      <div class="sust-qlabel">Which groups receive this training?</div>
+      <div class="sust-qinput">
+        <div class="sust-check-group">
+          <label class="sust-check"><input type="checkbox"/> Students</label>
+          <label class="sust-check"><input type="checkbox"/> Staff</label>
+          <label class="sust-check"><input type="checkbox"/> Both</label>
+        </div>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow sust-indent" data-def="3" onclick="selectRow(this)">
+      <div class="sust-qlabel">Please provide evidence to support your answers above. (Max 200 words)</div>
+      <div class="sust-qinput"><textarea class="sust-textarea" id="es_train_ev" maxlength="1400" oninput="wordCount(this,'es_train_wc',200)"></textarea><div class="sust-wc" id="es_train_wc">0 / 200 words</div></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="4" onclick="selectRow(this)">
+      <div class="sust-qlabel">Link to your institution's sustainable procurement / purchasing policy. (ES4)</div>
+      <div class="sust-qinput"><div class="sust-url-row"><input type="url" class="sust-url" placeholder="https://..." id="es4_procurement"/><button class="sust-open-btn" onclick="openLink('es4_procurement')">↗ Open</button></div></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="4" onclick="selectRow(this)">
+      <div class="sust-qlabel">Link to your institution's sustainable investment policy. (ES4)</div>
+      <div class="sust-qinput"><div class="sust-url-row"><input type="url" class="sust-url" placeholder="https://..." id="es4_investment"/><button class="sust-open-btn" onclick="openLink('es4_investment')">↗ Open</button></div></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="5" onclick="selectRow(this)">
+      <div class="sust-qlabel">Does your university report its carbon emissions in line with the GHG Protocol Corporate Standard? (ES7)</div>
+      <div class="sust-qinput"><div class="sust-url-row"><input type="url" class="sust-url" placeholder="https://... (URL evidence)" id="es7_ghg"/><button class="sust-open-btn" onclick="openLink('es7_ghg')">↗ Open</button></div></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="5" onclick="selectRow(this)">
+      <div class="sust-qlabel">Total Scope 1 &amp; 2 carbon emissions in tCO₂e (ES7.1)</div>
+      <div class="sust-qinput"><input type="number" class="sust-number" placeholder="e.g. 4520" min="0" step="0.01" id="es71_scope12"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow sust-indent" data-def="5" onclick="selectRow(this)">
+      <div class="sust-qlabel">URL supporting the above carbon figures</div>
+      <div class="sust-qinput"><div class="sust-url-row"><input type="url" class="sust-url" placeholder="https://..." id="es71_url"/><button class="sust-open-btn" onclick="openLink('es71_url')">↗ Open</button></div></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="5" onclick="selectRow(this)">
+      <div class="sust-qlabel">Total energy generated on campus through renewable sources in kWh. (ES8)</div>
+      <div class="sust-qinput"><input type="number" class="sust-number" placeholder="e.g. 125000" min="0" id="es8_renewable"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="5" onclick="selectRow(this)">
+      <div class="sust-qlabel">Total campus building footprint in square metres (m²). (ES7.2)</div>
+      <div class="sust-qinput"><input type="number" class="sust-number" placeholder="e.g. 85000" min="0" id="es72_footprint"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="5" onclick="selectRow(this)">
+      <div class="sust-qlabel">Year your institution has publicly committed to reaching net-zero. (ES6)</div>
+      <div class="sust-qinput"><div class="sust-url-row"><input type="url" class="sust-url" placeholder="URL evidence (blank if not committed)" id="es6_netzero"/><button class="sust-open-btn" onclick="openLink('es6_netzero')">↗ Open</button></div></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-subsec-hdr"><div>Environmental Education
+      <div>Action</div>
+    </div><div>URL</div><div>Status</div><div>Updated at</div></div>
+    <div class="sust-qrow" data-def="6" onclick="selectRow(this)">
+      <div class="sust-qlabel">Do you offer courses that teach specifically on climate science and/or environmental sustainability? (EE3)</div>
+      <div class="sust-qinput">
+        <div class="sust-check-group" style="margin-bottom:8px">
+          <label class="sust-check"><input type="checkbox" id="ee3_credits"/> Linked to officially recognised credits (e.g. ECTS)</label>
+          <label class="sust-check"><input type="checkbox" id="ee3_qual"/> Leads to an officially recognised qualification</label>
+        </div>
+        <div class="sust-url-row"><input type="url" class="sust-url" placeholder="URL evidence" id="ee3_url"/><button class="sust-open-btn" onclick="openLink('ee3_url')">↗ Open</button></div>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-subsec-hdr"><div>Environmental Research
+      <div>Action</div>
+    </div><div>URL / Evidence</div><div>Status</div><div>Updated At</div></div>
+    <div class="sust-qrow" data-def="6" onclick="selectRow(this)">
+      <div class="sust-qlabel">Presence of a Research Centre with a specific focus on environmental sustainability. (ER3)</div>
+      <div class="sust-qinput">
+        <div class="sust-check-group" style="margin-bottom:8px">
+          <label class="sust-check"><input type="checkbox" id="er3_fte"/> The Research Centre has dedicated FTE staff</label>
+          <label class="sust-check"><input type="checkbox" id="er3_teaching"/> Contributes to UG and/or PG teaching</label>
+        </div>
+        <textarea class="sust-textarea" placeholder="Supporting statement (max 100 words)" id="er3_statement" maxlength="700" oninput="wordCount(this,'er3_wc',100)"></textarea>
+        <div class="sust-wc" id="er3_wc">0 / 100 words</div>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 3 — SOCIAL IMPACT ═══ -->
+<div class="sust-section" id="sec-social">
+  <div class="sust-sec-hdr" onclick="toggleSection('social')">
+    <h3>Social Impact</h3><span id="tog-social">▲</span>
+  </div>
+  <div class="sust-sec-body" id="body-social">
+
+    <div class="sust-subsec-hdr"><div>Equality
+      <div>Action</div>
+    </div><div>Value / URL</div><div>Status</div><div>Updated At</div></div>
+    <div class="sust-qrow" data-def="7" onclick="selectRow(this)">
+      <div class="sust-qlabel">Faculty Staff — Male (EQ3)</div>
+      <div class="sust-qinput"><input type="number" class="sust-number" placeholder="Number" min="0" id="eq3_male"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="7" onclick="selectRow(this)">
+      <div class="sust-qlabel">Faculty Staff — Female (EQ3)</div>
+      <div class="sust-qinput"><input type="number" class="sust-number" placeholder="Number" min="0" id="eq3_female"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="7" onclick="selectRow(this)">
+      <div class="sust-qlabel">Total members in senior leadership team (EQ4)</div>
+      <div class="sust-qinput"><input type="number" class="sust-number" placeholder="Total" min="0" id="eq4_total"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="8" onclick="selectRow(this)">
+      <div class="sust-qlabel">Does your institution have a current Equality, Diversity and Inclusion (EDI) policy? (EQ5)</div>
+      <div class="sust-qinput">
+        <div class="sust-radio-group" style="margin-bottom:8px">
+          <label class="sust-radio"><input type="radio" name="eq5_policy" value="yes"/> We have a current EDI policy or equivalent</label>
+          <label class="sust-radio"><input type="radio" name="eq5_policy" value="no"/> No</label>
+        </div>
+        <div class="sust-url-row"><input type="url" class="sust-url" placeholder="URL evidence" id="eq5_url"/><button class="sust-open-btn" onclick="openLink('eq5_url')">↗ Open</button></div>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow sust-indent" data-def="8" onclick="selectRow(this)">
+      <div class="sust-qlabel">Which protected characteristics are included in this EDI policy?</div>
+      <div class="sust-qinput">
+        <div class="sust-check-group">
+          <label class="sust-check"><input type="checkbox"/> Age</label>
+          <label class="sust-check"><input type="checkbox"/> Gender or gender reassignment</label>
+          <label class="sust-check"><input type="checkbox"/> Disability</label>
+          <label class="sust-check"><input type="checkbox"/> Race</label>
+          <label class="sust-check"><input type="checkbox"/> Religion or belief</label>
+          <label class="sust-check"><input type="checkbox"/> Sexual orientation</label>
+          <label class="sust-check"><input type="checkbox"/> Refugee and asylum seekers</label>
+        </div>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="9" onclick="selectRow(this)">
+      <div class="sust-qlabel">Do you offer support services for people with disabilities? (EQ7)</div>
+      <div class="sust-qinput">
+        <div class="sust-check-group" style="margin-bottom:8px">
+          <label class="sust-check"><input type="checkbox"/> Existence of Disability Support Office</label>
+          <label class="sust-check"><input type="checkbox"/> Campus is easily accessible by people with disabilities</label>
+          <label class="sust-check"><input type="checkbox"/> Reasonable accommodation policy or strategy</label>
+        </div>
+        <div class="sust-url-row"><input type="url" class="sust-url" placeholder="URL evidence" id="eq7_url"/><button class="sust-open-btn" onclick="openLink('eq7_url')">↗ Open</button></div>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-subsec-hdr"><div>Knowledge Exchange
+      <div>Action</div>
+    </div><div>Evidence</div><div>Status</div><div>Updated At</div></div>
+    <div class="sust-qrow" data-def="10" onclick="selectRow(this)">
+      <div class="sust-qlabel">Do you offer, manage or deliver outreach projects for the local community? (KE2)</div>
+      <div class="sust-qinput">
+        <textarea class="sust-textarea" placeholder="Please provide evidence (max 200 words)" id="ke2_evidence" maxlength="1400" oninput="wordCount(this,'ke2_wc',200)"></textarea>
+        <div class="sust-wc" id="ke2_wc">0 / 200 words</div>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-subsec-hdr"><div>Health and Wellbeing
+      <div>Action</div>
+    </div><div>URL / Evidence</div><div>Status</div><div>Updated At</div></div>
+    <div class="sust-qrow" data-def="11" onclick="selectRow(this)">
+      <div class="sust-qlabel">Do you provide on-campus or local health and wellbeing services? (HW2)</div>
+      <div class="sust-qinput">
+        <div class="sust-check-group" style="margin-bottom:8px">
+          <label class="sust-check"><input type="checkbox" id="hw2_food"/> Provision of healthy and affordable food choices</label>
+          <label class="sust-check"><input type="checkbox" id="hw2_physical"/> Access to physical health-care services</label>
+          <label class="sust-check"><input type="checkbox" id="hw2_sexual"/> Access to sexual and reproductive health-care services</label>
+          <label class="sust-check"><input type="checkbox" id="hw2_mental"/> Access to mental health support for both staff and students</label>
+        </div>
+        <div class="sust-url-row"><input type="url" class="sust-url" placeholder="URL evidence" id="hw2_url"/><button class="sust-open-btn" onclick="openLink('hw2_url')">↗ Open</button></div>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 4 — GOVERNANCE ═══ -->
+<div class="sust-section" id="sec-gov">
+  <div class="sust-sec-hdr" onclick="toggleSection('gov')">
+    <h3>Governance</h3><span id="tog-gov">▲</span>
+  </div>
+  <div class="sust-sec-body" id="body-gov">
+    <div class="sust-subsec-hdr"><div>Good Governance
+      <div>Action</div>
+    </div><div>URL / Evidence</div><div>Status</div><div>Updated At</div></div>
+
+    <div class="sust-qrow" data-def="12" onclick="selectRow(this)">
+      <div class="sust-qlabel">Do you have an equality, diversity and inclusion committee, office or officer? (GG1)</div>
+      <div class="sust-qinput">
+        <div class="sust-check-group" style="margin-bottom:8px">
+          <label class="sust-check"><input type="checkbox" id="gg1_committee"/> Existence of committee, office or officer</label>
+          <label class="sust-check"><input type="checkbox" id="gg1_anti_disc"/> Existence of anti-discrimination and anti-harassment policies</label>
+        </div>
+        <div class="sust-url-row"><input type="url" class="sust-url" placeholder="URL evidence" id="gg1_url1"/><button class="sust-open-btn" onclick="openLink('gg1_url1')">↗ Open</button></div>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="12" onclick="selectRow(this)">
+      <div class="sust-qlabel">Do you have an Anti-bribery and corruption policy? (GG7)</div>
+      <div class="sust-qinput">
+        <div class="sust-radio-group" style="margin-bottom:8px">
+          <label class="sust-radio"><input type="radio" name="gg7_bribery" value="yes"/> Existence of anti-bribery and corruption policy</label>
+          <label class="sust-radio"><input type="radio" name="gg7_bribery" value="no"/> No</label>
+        </div>
+        <div class="sust-check-group" style="margin-bottom:8px"><label class="sust-check"><input type="checkbox" id="gg7_reviewed"/> This policy has been reviewed in the last 3 years</label></div>
+        <div class="sust-url-row"><input type="url" class="sust-url" placeholder="URL evidence" id="gg7_url"/><button class="sust-open-btn" onclick="openLink('gg7_url')">↗ Open</button></div>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="13" onclick="selectRow(this)">
+      <div class="sust-qlabel">Does your institution have a dedicated staff member whose sole responsibility is to advance sustainable development? (GG*)</div>
+      <div class="sust-qinput"><textarea class="sust-textarea" placeholder="Please provide evidence (max 200 words)" id="gg_sust_staff" maxlength="1400" oninput="wordCount(this,'gg_sust_wc',200)"></textarea><div class="sust-wc" id="gg_sust_wc">0 / 200 words</div></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="13" onclick="selectRow(this)">
+      <div class="sust-qlabel">Has your institution formed a sustainability committee? (GG*)</div>
+      <div class="sust-qinput">
+        <div class="sust-radio-group" style="margin-bottom:8px">
+          <label class="sust-radio"><input type="radio" name="gg_sust_committee" value="yes"/> Yes — executive leadership team member sits on this committee</label>
+          <label class="sust-radio"><input type="radio" name="gg_sust_committee" value="no"/> No</label>
+        </div>
+        <textarea class="sust-textarea" placeholder="Please provide evidence (max 200 words)" id="gg_committee_ev" maxlength="1400" oninput="wordCount(this,'gg_comm_wc',200)"></textarea>
+        <div class="sust-wc" id="gg_comm_wc">0 / 200 words</div>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="14" onclick="selectRow(this)">
+      <div class="sust-qlabel">Does your institution publish their financial reports on an annual basis? (GG4)</div>
+      <div class="sust-qinput">
+        <div class="sust-check-group" style="margin-bottom:8px">
+          <label class="sust-check"><input type="checkbox" id="gg4_income"/> Income</label>
+          <label class="sust-check"><input type="checkbox" id="gg4_expenditure"/> Expenditure</label>
+          <label class="sust-check"><input type="checkbox" id="gg4_borrowing"/> Borrowing</label>
+          <label class="sust-check"><input type="checkbox" id="gg4_surplus"/> Surplus</label>
+        </div>
+        <div class="sust-url-row"><input type="url" class="sust-url" placeholder="URL evidence" id="gg4_url"/><button class="sust-open-btn" onclick="openLink('gg4_url')">↗ Open</button></div>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="14" onclick="selectRow(this)">
+      <div class="sust-qlabel">Does your university's governing body have student representation? (GG6)</div>
+      <div class="sust-qinput"><div class="sust-url-row"><input type="url" class="sust-url" placeholder="URL evidence (blank if not applicable)" id="gg6_url"/><button class="sust-open-btn" onclick="openLink('gg6_url')">↗ Open</button></div></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 5 — ADDITIONAL INFORMATION ═══ -->
+<div class="sust-section" id="sec-additional">
+  <div class="sust-sec-hdr" onclick="toggleSection('additional')">
+    <h3>Additional Information</h3><span id="tog-additional">▲</span>
+  </div>
+  <div class="sust-sec-body" id="body-additional">
+    <div class="sust-subsec-hdr"><div>Additional Data Points
+      <div>Action</div>
+    </div><div>Value</div><div>Status</div><div>Updated At</div></div>
+    <div class="sust-qrow" data-def="15" onclick="selectRow(this)">
+      <div class="sust-qlabel">Your institution's water consumption for the previous reporting year in cubic metres (m³).</div>
+      <div class="sust-qinput"><input type="number" class="sust-number" placeholder="e.g. 85000" min="0" id="add_water"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="15" onclick="selectRow(this)">
+      <div class="sust-qlabel">Your institution's energy consumption for the previous reporting year in kWh/year.</div>
+      <div class="sust-qinput"><input type="number" class="sust-number" placeholder="e.g. 4500000" min="0" id="add_energy"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="16" onclick="selectRow(this)">
+      <div class="sust-qlabel">How many students receive a scholarship covering 100% of their fees?</div>
+      <div class="sust-qinput"><input type="number" class="sust-number" placeholder="Number of students" min="0" id="add_scholar_full"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+    <div class="sust-qrow" data-def="16" onclick="selectRow(this)">
+      <div class="sust-qlabel">How many students receive a scholarship covering at least 50% of fees?</div>
+      <div class="sust-qinput"><input type="number" class="sust-number" placeholder="Number of students" min="0" id="add_scholar_half"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div><div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+  </div>
+</div>
+
+    </div><!-- /sust-form-main -->
+
+    <!-- SIDE DEFINITION PANEL -->
+    <div class="sust-side-panel" id="sustSidePanel">
+      <div class="sust-sp-header">
+        <div id="sp-q-title">Click any question to see its definition</div>
+        <button class="sust-sp-menu" onclick="closeSidePanel()">✕</button>
+      </div>
+      <div class="sust-sp-tabs">
+        <div class="sust-sp-tab active" id="tab-def" onclick="switchSpTab('def',this)">Definition</div>
+        <div class="sust-sp-tab" id="tab-hist" onclick="switchSpTab('hist',this)">History</div>
+      </div>
+      <div class="sust-sp-body" id="sp-content">
+        Select a question row to see its definition and guidance here.
+      </div>
+    </div>
+
+  </div><!-- /sust-outer -->
+
+  <!-- Sticky save bar -->
+  <div class="sust-save-bar">
+    <button class="sust-save-btn" onclick="openModal()">Submit</button>
+  </div>
+
+</div>
+
+<!-- ══ SUBMIT CONFIRMATION MODAL ══ -->
+<div class="sust-modal-overlay" id="submitModal" onclick="closeModal(event)">
+  <div class="sust-modal">
+    <div class="sust-modal-header">
+      <span class="sust-modal-header-icon">📋</span>
+      <h3 id="modal-title">Confirm Submission</h3>
+    </div>
+    <div class="sust-modal-body">
+      <p id="modal-desc">You are about to save and submit all your answers for the QS Sustainability Rankings 2025. Please confirm that all data is accurate and complete.</p>
+      <ul class="sust-modal-checklist">
+        <li><span class="ck">✓</span>All data entered has been verified against official institutional records.</li>
+        <li><span class="ck">✓</span>Any URLs provided lead to publicly accessible, permanent pages.</li>
+        <li><span class="ck">✓</span>Supporting evidence accurately reflects your institution's current practices.</li>
+      </ul>
+      <div class="sust-modal-warning">
+        <span>⚠️</span>
+        <div>Submissions are taken as a true confirmation of the data by the university. Deliberate submission of false data may result in ranking penalties or exclusion.</div>
+      </div>
+    </div>
+    <div class="sust-modal-footer">
+      <button class="sust-modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="sust-modal-confirm" id="modal-confirm-btn" onclick="confirmSubmit()">Yes, Submit</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ======= QS WUR ======= -->
+<div class="page" id="page-qs-wur">
+
+  <div style="margin-bottom:16px;">
+    <button class="sust-back-btn" onclick="showPage('tasks')">← Back to My Ranking Forms</button>
+  </div>
+
+  <div class="ph">
+    <h1>QS University Rankings — World &amp; Regional Rankings 2025</h1>
+    <p>Institutions · Statistics · Data Liberation · World &amp; Regional Rankings (WUR, Asia, Arab, LatAm &amp; Caribbean, Europe)</p>
+  </div>
+
+  <div class="sust-notice sust-notice-green">
+    🏆 <strong>QS World &amp; Regional Rankings 2025</strong> — Deadline: <strong>March 31, 2025</strong>. The QS World University Rankings continue to employ a remarkably consistent methodology framework. Simply complete the form and submit before the university performance is officially rated.
+  </div>
+  <div class="sust-notice sust-notice-blue">
+    ☆ All submissions are taken to be a true confirmation of that data sent by the university, and a signature from the university as to its validity. QS reserves the right to ask for further evidence where we are not confident in the submission; any submissions found to be inaccurate will be reported. <strong>Deliberate attempts by an institution to submit false data will result in rankings penalties or exclusion from the ranking.</strong>
+  </div>
+  <div class="sust-notice" style="background:#FFF9E6;border-color:#F5CBA7;color:#7D4E00;">
+    ⚠ If your Institution submits data, this does not mean you are automatically included in the rankings. Your institution will still be required to meet the eligibility and inclusion criteria for each ranking.
+  </div>
+  <div class="sust-notice sust-notice-blue">
+    ℹ Please note that indicators below with the symbol <strong>↔</strong> will automatically update if that indicator also appears in other QS ranking forms.
+  </div>
+
+  <div class="sust-outer">
+    <div class="sust-form-main">
+
+<!-- ═══ SECTION 1 — ANNUAL REPORT ═══ -->
+<div class="sust-section" id="wur-sec-annual">
+  <div class="sust-sec-hdr" onclick="toggleSection('wur-annual')">
+    <h3>Annual Report</h3><span id="tog-wur-annual">▲</span>
+  </div>
+  <div class="sust-sec-body" id="body-wur-annual">
+    <div class="sust-subsec-hdr">
+      <div>Annual Report <span class="sust-sync">↔</span></div>
+      <div>URL / Response</div><div>Status</div><div>Updated At</div><div>Action</div>
+    </div>
+
+    <div class="sust-qrow" data-def="wur0" onclick="selectRow(this)">
+      <div class="sust-qlabel">Does your institution publish an annual report? <span class="sust-sync">↔</span></div>
+      <div class="sust-qinput">
+        <div class="sust-radio-group">
+          <label class="sust-radio"><input type="radio" name="wur_ar_publish" value="yes"/> Yes</label>
+          <label class="sust-radio"><input type="radio" name="wur_ar_publish" value="no"/> No</label>
+        </div>
+      </div>
+      <div class="sust-status"><span class="sust-icon none" title="No Status">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow" data-def="wur1" onclick="selectRow(this)">
+      <div class="sust-qlabel">If Yes, please upload/provide the link to your last annual report. <span class="sust-sync">↔</span></div>
+      <div class="sust-qinput">
+        <button class="sust-upload-btn">⬆ Upload</button>
+        <div class="sust-or">OR</div>
+        <div class="sust-url-row">
+          <input type="url" class="sust-url" placeholder="https://..." id="wur_ar_link"/>
+          <button class="sust-open-btn" onclick="openLink('wur_ar_link')">↗ Open</button>
+        </div>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 2 — FACULTY STAFF ═══ -->
+<div class="sust-section" id="wur-sec-faculty">
+  <div class="sust-sec-hdr" onclick="toggleSection('wur-faculty')">
+    <h3>Faculty Staff</h3><span id="tog-wur-faculty">▲</span>
+  </div>
+  <div class="sust-sec-body" id="body-wur-faculty">
+    <div class="sust-subsec-hdr wur-multi-hdr">
+      <div>Faculty Staff <span class="sust-sync">↔</span></div>
+      <div>Full Time</div><div>Part Time</div><div>HC ⓘ</div><div>FTE ⓘ</div><div>Stu.</div><div>Status</div><div>Updated At</div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur2" onclick="selectRow(this)">
+      <div class="sust-qlabel">Faculty Staff <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur3" onclick="selectRow(this)">
+      <div class="sust-qlabel">Faculty Staff Male <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur4" onclick="selectRow(this)">
+      <div class="sust-qlabel">Faculty Staff Female <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur5" onclick="selectRow(this)">
+      <div class="sust-qlabel">Faculty Staff Other <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <!-- International Faculty Staff — highlighted teal header row -->
+    <div class="wur-highlight-row">
+      <div class="wur-hl-label">International Faculty Staff <span class="sust-sync">↔↔↔</span></div>
+      <div class="wur-hl-inputs">
+        <input type="number" class="wur-num wur-hl-input" placeholder="FT"/>
+        <input type="number" class="wur-num wur-hl-input" placeholder="PT"/>
+        <input type="number" class="wur-num wur-hl-input" placeholder="HC"/>
+        <input type="number" class="wur-num wur-hl-input" placeholder="FTE"/>
+        <input type="number" class="wur-num wur-hl-input" placeholder="Stu."/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur6" onclick="selectRow(this)">
+      <div class="sust-qlabel">Staff Abrd <span class="sust-sync">↔↔↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 3 — STUDENTS: UNDERGRADUATE ═══ -->
+<div class="sust-section" id="wur-sec-ug">
+  <div class="sust-sec-hdr" onclick="toggleSection('wur-ug')">
+    <h3>Students — Undergraduate</h3><span id="tog-wur-ug">▲</span>
+  </div>
+  <div class="sust-sec-body" id="body-wur-ug">
+    <div class="sust-subsec-hdr wur-multi-hdr">
+      <div>Students — Undergraduate <span class="sust-sync">↔</span></div>
+      <div>Full Time</div><div>Part Time</div><div>HC ⓘ</div><div>FTE ⓘ</div><div>Stu.</div><div>Status</div><div>Updated At</div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur7" onclick="selectRow(this)">
+      <div class="sust-qlabel">Undergraduate Students <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur8" onclick="selectRow(this)">
+      <div class="sust-qlabel">Undergraduate International Students <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur9" onclick="selectRow(this)">
+      <div class="sust-qlabel">Undergraduate Exchange Students Inbound <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <span class="wur-dropdown-cell"><select class="wur-sel"><option>—</option><option>Yes</option><option>No</option></select></span>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur10" onclick="selectRow(this)">
+      <div class="sust-qlabel">Undergraduate Exchange Students Outbound <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <span class="wur-dropdown-cell"><select class="wur-sel"><option>—</option><option>Yes</option><option>No</option></select></span>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 4 — STUDENTS: GRADUATE / POSTGRADUATE ═══ -->
+<div class="sust-section" id="wur-sec-pg">
+  <div class="sust-sec-hdr" onclick="toggleSection('wur-pg')">
+    <h3>Students — Graduate / Postgraduate</h3><span id="tog-wur-pg">▲</span>
+  </div>
+  <div class="sust-sec-body" id="body-wur-pg">
+    <div class="sust-subsec-hdr wur-multi-hdr">
+      <div>Graduate/Postgraduate <span class="sust-sync">↔</span></div>
+      <div>Full Time</div><div>Part Time</div><div>HC ⓘ</div><div>FTE ⓘ</div><div>Stu.</div><div>Status</div><div>Updated At</div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur11" onclick="selectRow(this)">
+      <div class="sust-qlabel">Graduate/Postgraduate Students <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur12" onclick="selectRow(this)">
+      <div class="sust-qlabel">Graduate/Postgraduate International Students <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur13" onclick="selectRow(this)">
+      <div class="sust-qlabel">Graduate/Postgraduate Inbound and Inward Exchange Students <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur14" onclick="selectRow(this)">
+      <div class="sust-qlabel">Graduate/Postgraduate Outbound Exchange Students <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 5 — STUDENTS: DISTANCE ═══ -->
+<div class="sust-section" id="wur-sec-dist">
+  <div class="sust-sec-hdr" onclick="toggleSection('wur-dist')">
+    <h3>Students — Distance</h3><span id="tog-wur-dist">▲</span>
+  </div>
+  <div class="sust-sec-body" id="body-wur-dist">
+    <div class="sust-subsec-hdr wur-multi-hdr">
+      <div>Students — Distance <span class="sust-sync">↔</span></div>
+      <div>Full Time</div><div>Part Time</div><div>HC ⓘ</div><div>FTE ⓘ</div><div>Stu.</div><div>Status</div><div>Updated At</div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur15" onclick="selectRow(this)">
+      <div class="sust-qlabel">Students — Overall <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur16" onclick="selectRow(this)">
+      <div class="sust-qlabel">International Students — Overall <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur17" onclick="selectRow(this)">
+      <div class="sust-qlabel">Students — Distance <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <span class="wur-dropdown-cell" style="grid-column:span 4"><select class="wur-sel" style="width:100%"><option>— select —</option><option>Yes</option><option>No</option></select></span>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur18" onclick="selectRow(this)">
+      <div class="sust-qlabel">International Students — Distance <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <span class="wur-dropdown-cell" style="grid-column:span 4"><select class="wur-sel" style="width:100%"><option>— select —</option><option>Yes</option><option>No</option></select></span>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur19" onclick="selectRow(this)">
+      <div class="sust-qlabel">Exchange Students — Inbound <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon pending">⏳</span></div>
+      <div class="sust-date"><strong>Feb 11, 2025</strong></div>
+      <div class="sust-action"><button class="sust-edit-btn" onclick="editRow(this);event.stopPropagation()">✏ Edit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur20" onclick="selectRow(this)">
+      <div class="sust-qlabel">Exchange Students — Outbound <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 6 — STUDENT DEMOGRAPHICS ═══ -->
+<div class="sust-section" id="wur-sec-demo">
+  <div class="sust-sec-hdr" onclick="toggleSection('wur-demo')">
+    <h3>Student Demographics</h3><span id="tog-wur-demo">▲</span>
+  </div>
+  <div class="sust-sec-body" id="body-wur-demo">
+    <div class="sust-subsec-hdr wur-multi-hdr">
+      <div>Student Demographics <span class="sust-sync">↔</span></div>
+      <div>Full Time</div><div>Part Time</div><div>HC ⓘ</div><div>FTE ⓘ</div><div>Stu.</div><div>Status</div><div>Updated At</div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur21" onclick="selectRow(this)">
+      <div class="sust-qlabel">Students Male <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur22" onclick="selectRow(this)">
+      <div class="sust-qlabel">Students Female <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon pending">⏳</span></div>
+      <div class="sust-date"><strong>Feb 12, 2025</strong></div>
+      <div class="sust-action"><button class="sust-edit-btn" onclick="editRow(this);event.stopPropagation()">✏ Edit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur23" onclick="selectRow(this)">
+      <div class="sust-qlabel">Students Other <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs">
+        <input type="number" class="wur-num" placeholder="Full Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="Part Time" min="0"/>
+        <input type="number" class="wur-num" placeholder="HC" min="0"/>
+        <input type="number" class="wur-num" placeholder="FTE" min="0"/>
+        <input type="number" class="wur-num" placeholder="Stu." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon pending">⏳</span></div>
+      <div class="sust-date"><strong>Feb 12, 2025</strong></div>
+      <div class="sust-action"><button class="sust-edit-btn" onclick="editRow(this);event.stopPropagation()">✏ Edit</button></div>
+    </div>
+
+    <div class="sust-qrow" data-def="wur24" onclick="selectRow(this)">
+      <div class="sust-qlabel">Count of places of origin <span class="sust-sync">↔</span> ⓘ</div>
+      <div class="sust-qinput"><input type="number" class="sust-url" placeholder="Number of countries" min="0"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <!-- Save row -->
+    <div style="padding:10px 12px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--border);">
+      <button class="sust-save-btn" style="font-size:12px;padding:6px 14px;" onclick="showToast('Refreshing data...')">↺ Refresh</button>
+      <button class="sust-open-btn" onclick="showToast('Opening QS Hub...')" style="font-size:12px;padding:6px 14px;">↗ Open link</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 7 — ADDITIONAL STATISTICS ═══ -->
+<div class="sust-section" id="wur-sec-addstats">
+  <div class="sust-sec-hdr" onclick="toggleSection('wur-addstats')">
+    <h3>Additional Statistics</h3><span id="tog-wur-addstats">▲</span>
+  </div>
+  <div class="sust-sec-body" id="body-wur-addstats">
+    <div class="sust-subsec-hdr wur-multi-hdr">
+      <div>Additional Statistics</div>
+      <div>Full Time</div><div>Part Time</div><div>HC ⓘ</div><div>FTE ⓘ</div><div>Stu.</div><div>Status</div><div>Updated At</div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur25" onclick="selectRow(this)">
+      <div class="sust-qlabel">Number of total undergraduate degree programs offered online <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs"><input type="number" class="wur-num" placeholder="Number" min="0" style="grid-column:span 5"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur26" onclick="selectRow(this)">
+      <div class="sust-qlabel">Number of total postgraduate degree programs offered <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs"><input type="number" class="wur-num" placeholder="Number" min="0" style="grid-column:span 5"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur27" onclick="selectRow(this)">
+      <div class="sust-qlabel">Number of total undergraduate degree programs offered online</div>
+      <div class="wur-num-inputs"><input type="number" class="wur-num" placeholder="Number" min="0" style="grid-column:span 5"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur28" onclick="selectRow(this)">
+      <div class="sust-qlabel">Student Continuation Rate (%)</div>
+      <div class="wur-num-inputs"><input type="number" class="wur-num" placeholder="%" min="0" max="100" style="grid-column:span 5"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur29" onclick="selectRow(this)">
+      <div class="sust-qlabel">Number of total postgraduate degree programs offered online</div>
+      <div class="wur-num-inputs"><input type="number" class="wur-num" placeholder="Number" min="0" style="grid-column:span 5"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur30" onclick="selectRow(this)">
+      <div class="sust-qlabel">Student Retention Rate (%) <span class="sust-sync">↔</span></div>
+      <div class="wur-num-inputs"><input type="number" class="wur-num" placeholder="%" min="0" max="100" style="grid-column:span 5"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur31" onclick="selectRow(this)">
+      <div class="sust-qlabel">Completion Rate (%)</div>
+      <div class="wur-num-inputs"><input type="number" class="wur-num" placeholder="%" min="0" max="100" style="grid-column:span 5"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-numrow" data-def="wur32" onclick="selectRow(this)">
+      <div class="sust-qlabel">First Generation Learners (%)</div>
+      <div class="wur-num-inputs"><input type="number" class="wur-num" placeholder="%" min="0" max="100" style="grid-column:span 5"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow" data-def="wur33" onclick="selectRow(this)">
+      <div class="sust-qlabel">Total number of non-degree courses offered online (e.g. micro-credentials / vocational courses that allow transfer of credits to degrees)</div>
+      <div class="sust-qinput"><input type="number" class="sust-url" placeholder="Number" min="0"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 8 — AVERAGE TUITION FEES ═══ -->
+<div class="sust-section" id="wur-sec-fees">
+  <div class="sust-sec-hdr" onclick="toggleSection('wur-fees')">
+    <h3>Average Tuition Fees</h3><span id="tog-wur-fees">▲</span>
+  </div>
+  <div class="sust-sec-body" id="body-wur-fees">
+    <div class="sust-subsec-hdr" style="grid-template-columns:1fr 80px 120px 110px 100px;">
+      <div>Average Tuition Fees</div><div>Input</div><div>Currency</div><div>Status</div><div>Updated At</div>
+    </div>
+
+    <div class="sust-qrow wur-fee-row" data-def="wur34" onclick="selectRow(this)">
+      <div class="sust-qlabel">Undergraduate Fees — Domestic <span class="sust-sync">↔</span></div>
+      <div class="wur-fee-inputs">
+        <input type="number" class="wur-num" placeholder="Amount" min="0"/>
+        <select class="wur-sel"><option>USD</option><option>BHD</option><option>EUR</option><option>GBP</option></select>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-fee-row" data-def="wur35" onclick="selectRow(this)">
+      <div class="sust-qlabel">Undergraduate Fees — International <span class="sust-sync">↔</span></div>
+      <div class="wur-fee-inputs">
+        <input type="number" class="wur-num" placeholder="Amount" min="0"/>
+        <select class="wur-sel"><option>USD</option><option>BHD</option><option>EUR</option><option>GBP</option></select>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-fee-row" data-def="wur36" onclick="selectRow(this)">
+      <div class="sust-qlabel">Graduate/Postgraduate Fees — Domestic <span class="sust-sync">↔</span></div>
+      <div class="wur-fee-inputs">
+        <input type="number" class="wur-num" placeholder="Amount" min="0"/>
+        <select class="wur-sel"><option>USD</option><option>BHD</option><option>EUR</option><option>GBP</option></select>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-fee-row" data-def="wur37" onclick="selectRow(this)">
+      <div class="sust-qlabel">Graduate/Postgraduate Fees — International <span class="sust-sync">↔</span></div>
+      <div class="wur-fee-inputs">
+        <input type="number" class="wur-num" placeholder="Amount" min="0"/>
+        <select class="wur-sel"><option>USD</option><option>BHD</option><option>EUR</option><option>GBP</option></select>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-fee-row" data-def="wur38" onclick="selectRow(this)">
+      <div class="sust-qlabel">Overall Student Fees — Domestic <span class="sust-sync">↔</span></div>
+      <div class="wur-fee-inputs">
+        <input type="number" class="wur-num" placeholder="Amount" min="0"/>
+        <select class="wur-sel"><option>USD</option><option>BHD</option><option>EUR</option><option>GBP</option></select>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-fee-row" data-def="wur39" onclick="selectRow(this)">
+      <div class="sust-qlabel">Overall Student Fees — International <span class="sust-sync">↔</span></div>
+      <div class="wur-fee-inputs">
+        <input type="number" class="wur-num" placeholder="Amount" min="0"/>
+        <select class="wur-sel"><option>USD</option><option>BHD</option><option>EUR</option><option>GBP</option></select>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow" data-def="wur40" onclick="selectRow(this)">
+      <div class="sust-qlabel">How many students received a combining covering 100% of their fees? <span class="sust-sync">↔</span></div>
+      <div class="sust-qinput"><input type="number" class="sust-url" placeholder="Number" min="0"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow" data-def="wur41" onclick="selectRow(this)">
+      <div class="sust-qlabel">How many students receive a scholarship covering at least 50% of their fees?</div>
+      <div class="sust-qinput"><input type="number" class="sust-url" placeholder="Number" min="0"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 9 — EMPLOYMENT ═══ -->
+<div class="sust-section" id="wur-sec-emp">
+  <div class="sust-sec-hdr" onclick="toggleSection('wur-emp')">
+    <h3>Employment</h3><span id="tog-wur-emp">▲</span>
+  </div>
+  <div class="sust-sec-body" id="body-wur-emp">
+    <div class="sust-subsec-hdr" style="grid-template-columns:1fr 80px 80px 80px 80px 60px 80px 110px 100px;font-size:11px;">
+      <div>Employment</div><div>Total grads</div><div>Total full-time</div><div>Employed (FT)</div><div>Unemployed (FT)</div><div>In FT</div><div>Graduate</div><div>Status</div><div>Updated At</div>
+    </div>
+
+    <div class="sust-qrow wur-emp-row" data-def="wur42" onclick="selectRow(this)">
+      <div class="sust-qlabel">Number of Graduates</div>
+      <div class="wur-emp-inputs">
+        <input type="number" class="wur-num" placeholder="Total" min="0"/>
+        <input type="number" class="wur-num" placeholder="FT" min="0"/>
+        <input type="number" class="wur-num" placeholder="Employed" min="0"/>
+        <input type="number" class="wur-num" placeholder="Unemployed" min="0"/>
+        <input type="number" class="wur-num" placeholder="In FT" min="0"/>
+        <input type="number" class="wur-num" placeholder="Grad." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow wur-emp-row" data-def="wur43" onclick="selectRow(this)">
+      <div class="sust-qlabel">Number of Students</div>
+      <div class="wur-emp-inputs">
+        <input type="number" class="wur-num" placeholder="Total" min="0"/>
+        <input type="number" class="wur-num" placeholder="FT" min="0"/>
+        <input type="number" class="wur-num" placeholder="Employed" min="0"/>
+        <input type="number" class="wur-num" placeholder="Unemployed" min="0"/>
+        <input type="number" class="wur-num" placeholder="In FT" min="0"/>
+        <input type="number" class="wur-num" placeholder="Grad." min="0"/>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow" data-def="wur44" onclick="selectRow(this)">
+      <div class="sust-qlabel">Median Q or Salary (USD)</div>
+      <div class="sust-qinput"><input type="number" class="sust-url" placeholder="Salary in USD" min="0"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow" data-def="wur45" onclick="selectRow(this)">
+      <div class="sust-qlabel">Percentage (%)</div>
+      <div class="sust-qinput"><input type="number" class="sust-url" placeholder="%" min="0" max="100"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow" data-def="wur46" onclick="selectRow(this)">
+      <div class="sust-qlabel">L of Employment (date of data)</div>
+      <div class="sust-qinput"><input type="date" class="sust-url"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 10 — EMPLOYMENT OUTCOMES EVIDENCE ═══ -->
+<div class="sust-section" id="wur-sec-empev">
+  <div class="sust-sec-hdr" onclick="toggleSection('wur-empev')">
+    <h3>Employment Outcomes Evidence</h3><span id="tog-wur-empev">▲</span>
+  </div>
+  <div class="sust-sec-body" id="body-wur-empev">
+    <div class="sust-subsec-hdr">
+      <div>Employment Outcomes Evidence</div>
+      <div>URL / Response</div><div>Status</div><div>Updated At</div><div>Action</div>
+    </div>
+
+    <div class="sust-qrow" data-def="wur47" onclick="selectRow(this)">
+      <div class="sust-qlabel">Employment Survey: 12–15 months after graduation</div>
+      <div class="sust-qinput">
+        <div class="sust-url-row">
+          <input type="url" class="sust-url" placeholder="https://..." id="wur_emp_link"/>
+          <button class="sust-open-btn" onclick="openLink('wur_emp_link')">↗ Open</button>
+        </div>
+      </div>
+      <div class="sust-status"><span class="sust-icon accepted">✓</span></div>
+      <div class="sust-date"><strong>Feb 11, 2025</strong></div>
+      <div class="sust-action"><button class="sust-edit-btn" onclick="editRow(this);event.stopPropagation()">✏ Edit</button></div>
+    </div>
+
+    <div class="sust-qrow" data-def="wur48" onclick="selectRow(this)">
+      <div class="sust-qlabel">What year was this survey conducted?</div>
+      <div class="sust-qinput"><input type="number" class="sust-url" placeholder="e.g. 2023" min="2000" max="2030" id="wur_survey_year"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow" data-def="wur49" onclick="selectRow(this)">
+      <div class="sust-qlabel">Link or access to evidence <span class="sust-sync">↔</span></div>
+      <div class="sust-qinput">
+        <div class="sust-url-row">
+          <input type="url" class="sust-url" placeholder="https://..." id="wur_ev_link"/>
+          <select class="wur-sel" style="margin-left:6px"><option>Current</option><option>QS</option><option>Other</option></select>
+          <button class="sust-open-btn" onclick="openLink('wur_ev_link')">↗ Open</button>
+        </div>
+      </div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+
+    <div class="sust-qrow" data-def="wur50" onclick="selectRow(this)">
+      <div class="sust-qlabel">Summary of Students</div>
+      <div class="sust-qinput"><input type="number" class="sust-url" placeholder="Number" min="0"/></div>
+      <div class="sust-status"><span class="sust-icon none">○</span></div>
+      <div class="sust-date">—</div>
+      <div class="sust-action"><button class="sust-submit-btn" onclick="submitRow(this);event.stopPropagation()">Submit</button></div>
+    </div>
+  </div>
+</div>
+
+    </div><!-- /sust-form-main -->
+
+    <!-- SIDE PANEL -->
+    <div class="sust-side-panel" id="wurSidePanel">
+      <div class="sp-header" style="background:linear-gradient(135deg,#0A9396,#38BDF8);">
+        <span id="wur-sp-title">Select a question</span>
+        <button class="sp-close" onclick="closeSidePanel()">✕</button>
+      </div>
+      <div class="sp-tabs">
+        <button class="sp-tab active" onclick="switchSpTab('def',this)">Definition</button>
+        <button class="sp-tab" onclick="switchSpTab('hist',this)">History</button>
+      </div>
+      <div class="sp-body" id="wur-sp-body">
+        <p style="color:var(--text-muted);font-size:13px;padding:16px;">Click any row to view its definition and submission history.</p>
+      </div>
+    </div>
+
+  </div><!-- /sust-outer -->
+
+  <!-- SAVE BAR -->
+  <div class="sust-save-bar">
+    <button class="sust-save-btn" onclick="document.getElementById('wurSubmitModal').classList.add('open');document.body.style.overflow='hidden'">Submit</button>
+  </div>
+
+  <!-- MODAL -->
+  <div class="sust-modal-overlay" id="wurSubmitModal" onclick="closeModal(event,'wurSubmitModal')">
+    <div class="sust-modal">
+      <div class="sust-modal-header" style="background:linear-gradient(135deg,#0A9396,#38BDF8);">
+        <span>Confirm Submission — QS WUR 2025</span>
+        <button class="sust-modal-close" onclick="document.getElementById('wurSubmitModal').classList.remove('open');document.body.style.overflow=''">✕</button>
+      </div>
+      <div class="sust-modal-body">
+        <p id="wur-modal-desc">You are about to save and submit all your answers for the QS World &amp; Regional Rankings 2025. Please confirm that all data is accurate and complete.</p>
+        <ul class="sust-checklist">
+          <li>✅ Data has been verified against official university records</li>
+          <li>✅ All numeric values are in the correct format and unit</li>
+          <li>✅ You are authorised to submit on behalf of this institution</li>
+        </ul>
+        <div class="sust-modal-warning">⚠ Deliberate submission of false data will result in ranking penalties or exclusion.</div>
+      </div>
+      <div class="sust-modal-footer">
+        <button class="sust-cancel-btn" onclick="document.getElementById('wurSubmitModal').classList.remove('open');document.body.style.overflow=''">Cancel</button>
+        <button class="sust-save-btn" onclick="wurConfirmSubmit()">Yes, Submit</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ======= THE WUR ======= -->
+<div class="page" id="page-the-wur">
+  <div class="ph"><h1>Times Higher Education World Rankings 2025</h1><p>Research excellence, teaching quality, and international collaboration metrics</p></div>
+  <div class="coming-soon"><div class="coming-soon-icon">📚</div><h2>Coming Soon</h2><p>The THE World University Rankings form is being developed and will be available shortly.<br/>Expected availability: Early April 2025</p><div class="coming-soon-badge">In Development</div></div>
+</div>
+
+<!-- ======= THE IMPACT ======= -->
+<div class="page" id="page-the-impact">
+  <div class="ph"><h1>THE Impact Rankings 2025</h1><p>Sustainable Development Goals impact metrics and social responsibility</p></div>
+  <div class="coming-soon"><div class="coming-soon-icon">🎯</div><h2>Coming Soon</h2><p>The THE Impact Rankings form is being developed and will be available shortly.<br/>Expected availability: Early May 2025</p><div class="coming-soon-badge">In Development</div></div>
+</div>
+
+<!-- ======= GREEN METRIC ======= -->
+<div class="page" id="page-green-metric">
+  <div class="ph"><h1>UI Green Metric Ranking 2025</h1><p>Environmental sustainability and campus green initiatives metrics</p></div>
+  <div class="coming-soon"><div class="coming-soon-icon">♻️</div><h2>Coming Soon</h2><p>The UI Green Metric Ranking form is being developed and will be available shortly.<br/>Expected availability: Early June 2025</p><div class="coming-soon-badge">In Development</div></div>
+</div>
+
+<!-- ======= PROGRESS ======= -->
+<div class="page" id="page-progress">
+  <div class="ph"><h1>Progress</h1><p>Your submission completion across all ranking forms</p></div>
+
+  <div class="prog-grid">
+
+    <!-- QS Sustainability -->
+    <div class="prog-card">
+      <div class="prog-wave-wrap">
+        <svg class="prog-svg" viewBox="0 0 160 160">
+          <defs>
+            <clipPath id="clip-sus"><circle cx="80" cy="80" r="62"/></clipPath>
+            <linearGradient id="wg-sus" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#34D399"/><stop offset="100%" stop-color="#059669"/>
+            </linearGradient>
+          </defs>
+          <circle cx="80" cy="80" r="66" fill="none" stroke="#E5E7EB" stroke-width="4"/>
+          <circle cx="80" cy="80" r="66" fill="none" stroke="url(#wg-sus)" stroke-width="4"
+            stroke-dasharray="414" stroke-dashoffset="414" stroke-linecap="round"
+            class="prog-ring" data-pct="35" style="transform:rotate(-90deg);transform-origin:80px 80px"/>
+          <g clip-path="url(#clip-sus)">
+            <path class="prog-wave" fill="rgba(52,211,153,0.55)"
+              d="M-80,105 Q0,85 80,105 Q160,125 240,105 L240,160 L-80,160 Z">
+              <animateTransform attributeName="transform" type="translate" from="0,0" to="160,0" dur="3.2s" repeatCount="indefinite"/>
+            </path>
+            <path class="prog-wave" fill="rgba(5,150,105,0.4)"
+              d="M-80,112 Q0,92 80,112 Q160,132 240,112 L240,160 L-80,160 Z">
+              <animateTransform attributeName="transform" type="translate" from="0,0" to="160,0" dur="4.1s" repeatCount="indefinite"/>
+            </path>
+          </g>
+          <circle cx="80" cy="80" r="62" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
+          <text x="80" y="74" text-anchor="middle" class="prog-pct">35%</text>
+          <text x="80" y="92" text-anchor="middle" class="prog-sub-lbl">complete</text>
+        </svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-dot" style="background:#059669"></div>
+        <div>
+          <div class="prog-name">QS Sustainability</div>
+          <div class="prog-stat">12 / 35 questions answered</div>
+        </div>
+      </div>
+      <div class="prog-bar-wrap"><div class="prog-bar" style="width:35%;background:#059669"></div></div>
+      <div class="prog-deadline">📅 Deadline: Jun 15, 2025</div>
+    </div>
+
+    <!-- QS WUR -->
+    <div class="prog-card">
+      <div class="prog-wave-wrap">
+        <svg class="prog-svg" viewBox="0 0 160 160">
+          <defs>
+            <clipPath id="clip-qswur"><circle cx="80" cy="80" r="62"/></clipPath>
+            <linearGradient id="wg-qswur" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#38BDF8"/><stop offset="100%" stop-color="#0A9396"/>
+            </linearGradient>
+          </defs>
+          <circle cx="80" cy="80" r="66" fill="none" stroke="#E5E7EB" stroke-width="4"/>
+          <circle cx="80" cy="80" r="66" fill="none" stroke="url(#wg-qswur)" stroke-width="4"
+            stroke-dasharray="414" stroke-dashoffset="414" stroke-linecap="round"
+            class="prog-ring" data-pct="60" style="transform:rotate(-90deg);transform-origin:80px 80px"/>
+          <g clip-path="url(#clip-qswur)">
+            <path class="prog-wave" fill="rgba(56,189,248,0.5)"
+              d="M-80,100 Q0,80 80,100 Q160,120 240,100 L240,160 L-80,160 Z">
+              <animateTransform attributeName="transform" type="translate" from="0,0" to="160,0" dur="2.8s" repeatCount="indefinite"/>
+            </path>
+            <path class="prog-wave" fill="rgba(10,147,150,0.38)"
+              d="M-80,108 Q0,88 80,108 Q160,128 240,108 L240,160 L-80,160 Z">
+              <animateTransform attributeName="transform" type="translate" from="0,0" to="160,0" dur="3.7s" repeatCount="indefinite"/>
+            </path>
+          </g>
+          <circle cx="80" cy="80" r="62" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
+          <text x="80" y="74" text-anchor="middle" class="prog-pct">60%</text>
+          <text x="80" y="92" text-anchor="middle" class="prog-sub-lbl">complete</text>
+        </svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-dot" style="background:#0A9396"></div>
+        <div>
+          <div class="prog-name">QS World University Rankings</div>
+          <div class="prog-stat">6 / 9 indicators submitted</div>
+        </div>
+      </div>
+      <div class="prog-bar-wrap"><div class="prog-bar" style="width:60%;background:#0A9396"></div></div>
+      <div class="prog-deadline">📅 Deadline: Mar 31, 2025</div>
+    </div>
+
+    <!-- THE WUR -->
+    <div class="prog-card">
+      <div class="prog-wave-wrap">
+        <svg class="prog-svg" viewBox="0 0 160 160">
+          <defs>
+            <clipPath id="clip-thewur"><circle cx="80" cy="80" r="62"/></clipPath>
+            <linearGradient id="wg-thewur" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#C084FC"/><stop offset="100%" stop-color="#7C3AED"/>
+            </linearGradient>
+          </defs>
+          <circle cx="80" cy="80" r="66" fill="none" stroke="#E5E7EB" stroke-width="4"/>
+          <circle cx="80" cy="80" r="66" fill="none" stroke="url(#wg-thewur)" stroke-width="4"
+            stroke-dasharray="414" stroke-dashoffset="414" stroke-linecap="round"
+            class="prog-ring" data-pct="20" style="transform:rotate(-90deg);transform-origin:80px 80px"/>
+          <g clip-path="url(#clip-thewur)">
+            <path class="prog-wave" fill="rgba(192,132,252,0.5)"
+              d="M-80,118 Q0,98 80,118 Q160,138 240,118 L240,160 L-80,160 Z">
+              <animateTransform attributeName="transform" type="translate" from="0,0" to="160,0" dur="3.5s" repeatCount="indefinite"/>
+            </path>
+            <path class="prog-wave" fill="rgba(124,58,237,0.35)"
+              d="M-80,124 Q0,104 80,124 Q160,144 240,124 L240,160 L-80,160 Z">
+              <animateTransform attributeName="transform" type="translate" from="0,0" to="160,0" dur="4.4s" repeatCount="indefinite"/>
+            </path>
+          </g>
+          <circle cx="80" cy="80" r="62" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
+          <text x="80" y="74" text-anchor="middle" class="prog-pct">20%</text>
+          <text x="80" y="92" text-anchor="middle" class="prog-sub-lbl">complete</text>
+        </svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-dot" style="background:#7C3AED"></div>
+        <div>
+          <div class="prog-name">THE World University Rankings</div>
+          <div class="prog-stat">4 / 18 indicators submitted</div>
+        </div>
+      </div>
+      <div class="prog-bar-wrap"><div class="prog-bar" style="width:20%;background:#7C3AED"></div></div>
+      <div class="prog-deadline">📅 Deadline: Apr 30, 2025</div>
+    </div>
+
+    <!-- THE Impact -->
+    <div class="prog-card">
+      <div class="prog-wave-wrap">
+        <svg class="prog-svg" viewBox="0 0 160 160">
+          <defs>
+            <clipPath id="clip-impact"><circle cx="80" cy="80" r="62"/></clipPath>
+            <linearGradient id="wg-impact" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FCA5A5"/><stop offset="100%" stop-color="#DC2626"/>
+            </linearGradient>
+          </defs>
+          <circle cx="80" cy="80" r="66" fill="none" stroke="#E5E7EB" stroke-width="4"/>
+          <circle cx="80" cy="80" r="66" fill="none" stroke="url(#wg-impact)" stroke-width="4"
+            stroke-dasharray="414" stroke-dashoffset="414" stroke-linecap="round"
+            class="prog-ring" data-pct="45" style="transform:rotate(-90deg);transform-origin:80px 80px"/>
+          <g clip-path="url(#clip-impact)">
+            <path class="prog-wave" fill="rgba(252,165,165,0.52)"
+              d="M-80,103 Q0,83 80,103 Q160,123 240,103 L240,160 L-80,160 Z">
+              <animateTransform attributeName="transform" type="translate" from="0,0" to="160,0" dur="3.0s" repeatCount="indefinite"/>
+            </path>
+            <path class="prog-wave" fill="rgba(220,38,38,0.38)"
+              d="M-80,110 Q0,90 80,110 Q160,130 240,110 L240,160 L-80,160 Z">
+              <animateTransform attributeName="transform" type="translate" from="0,0" to="160,0" dur="4.0s" repeatCount="indefinite"/>
+            </path>
+          </g>
+          <circle cx="80" cy="80" r="62" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
+          <text x="80" y="74" text-anchor="middle" class="prog-pct">45%</text>
+          <text x="80" y="92" text-anchor="middle" class="prog-sub-lbl">complete</text>
+        </svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-dot" style="background:#DC2626"></div>
+        <div>
+          <div class="prog-name">THE Impact Rankings</div>
+          <div class="prog-stat">8 / 17 SDGs submitted</div>
+        </div>
+      </div>
+      <div class="prog-bar-wrap"><div class="prog-bar" style="width:45%;background:#DC2626"></div></div>
+      <div class="prog-deadline">📅 Deadline: May 15, 2025</div>
+    </div>
+
+    <!-- UI GreenMetric -->
+    <div class="prog-card">
+      <div class="prog-wave-wrap">
+        <svg class="prog-svg" viewBox="0 0 160 160">
+          <defs>
+            <clipPath id="clip-green"><circle cx="80" cy="80" r="62"/></clipPath>
+            <linearGradient id="wg-green" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#86EFAC"/><stop offset="100%" stop-color="#16A34A"/>
+            </linearGradient>
+          </defs>
+          <circle cx="80" cy="80" r="66" fill="none" stroke="#E5E7EB" stroke-width="4"/>
+          <circle cx="80" cy="80" r="66" fill="none" stroke="url(#wg-green)" stroke-width="4"
+            stroke-dasharray="414" stroke-dashoffset="414" stroke-linecap="round"
+            class="prog-ring" data-pct="10" style="transform:rotate(-90deg);transform-origin:80px 80px"/>
+          <g clip-path="url(#clip-green)">
+            <path class="prog-wave" fill="rgba(134,239,172,0.5)"
+              d="M-80,128 Q0,108 80,128 Q160,148 240,128 L240,160 L-80,160 Z">
+              <animateTransform attributeName="transform" type="translate" from="0,0" to="160,0" dur="3.8s" repeatCount="indefinite"/>
+            </path>
+            <path class="prog-wave" fill="rgba(22,163,74,0.38)"
+              d="M-80,133 Q0,113 80,133 Q160,153 240,133 L240,160 L-80,160 Z">
+              <animateTransform attributeName="transform" type="translate" from="0,0" to="160,0" dur="4.8s" repeatCount="indefinite"/>
+            </path>
+          </g>
+          <circle cx="80" cy="80" r="62" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
+          <text x="80" y="74" text-anchor="middle" class="prog-pct">10%</text>
+          <text x="80" y="92" text-anchor="middle" class="prog-sub-lbl">complete</text>
+        </svg>
+      </div>
+      <div class="prog-info">
+        <div class="prog-dot" style="background:#16A34A"></div>
+        <div>
+          <div class="prog-name">UI GreenMetric Ranking</div>
+          <div class="prog-stat">6 / 61 indicators submitted</div>
+        </div>
+      </div>
+      <div class="prog-bar-wrap"><div class="prog-bar" style="width:10%;background:#16A34A"></div></div>
+      <div class="prog-deadline">📅 Deadline: Jun 30, 2025</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======= NOTIFICATIONS ======= -->
+<div class="page" id="page-notifications">
+  <div class="ph"><h1>Notifications</h1><p>Messages and reminders</p></div>
+  <div class="card"><div class="card-body"><p style="color:var(--text-muted);font-size:13px;">You have no new notifications.</p></div></div>
+</div>
+
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DEADLINES DATA ──
+const deadlines = [
+  { month:2,  day:31, title:'QS WUR 2025',         sub:'Data submission deadline',     badge:'badge-blue',   page:'qs-wur'      },
+  { month:3,  day:30, title:'THE WUR 2025',         sub:'Data submission deadline',     badge:'badge-purple', page:'the-wur'     },
+  { month:4,  day:15, title:'THE Impact 2025',      sub:'Data submission deadline',     badge:'badge-red',    page:'the-impact'  },
+  { month:5,  day:15, title:'QS Sustainability',    sub:'Data submission deadline',     badge:'badge-green',  page:'sustainability'},
+  { month:5,  day:30, title:'UI GreenMetric 2025',  sub:'Data submission deadline',     badge:'badge-green',  page:'green-metric'}
+];
+const badgeLabels = { 'badge-blue':'QS WUR','badge-purple':'THE WUR','badge-red':'THE Impact','badge-green':'Green','badge-gold':'Misc' };
+
+// ── CALENDAR STATE ──
+const today = new Date();
+let calYear  = today.getFullYear();
+let calMonth = today.getMonth(); // 0-indexed
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS   = ['Mo','Tu','We','Th','Fr','Sa','Su'];
+
+function renderCalendar() {
+  const label = document.getElementById('tl-month-label');
+  label.textContent = MONTHS[calMonth] + ' ' + calYear;
+
+  // deadline days this month
+  const deadlineDays = new Set(
+    deadlines.filter(d => d.month === calMonth && d.day <= daysInMonth(calYear, calMonth))
+             .map(d => d.day)
+  );
+
+  // first day of month (Mon=0)
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const offset   = (firstDay === 0) ? 6 : firstDay - 1;
+  const total    = daysInMonth(calYear, calMonth);
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  for (let i = 0; i < offset; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell empty';
+    grid.appendChild(cell);
+  }
+
+  for (let d = 1; d <= total; d++) {
+    const cell = document.createElement('div');
+    const isToday = (calYear === today.getFullYear() && calMonth === today.getMonth() && d === today.getDate());
+    const hasDL   = deadlineDays.has(d);
+    // near = within 7 days of a deadline
+    const isNear  = [...deadlineDays].some(dl => Math.abs(dl - d) <= 3 && !isToday);
+    cell.className = 'cal-cell' + (isToday ? ' today' : '') + (hasDL ? ' has-deadline' : '') + (!isToday && isNear ? ' deadline-near' : '');
+    cell.textContent = d;
+    cell.title = hasDL ? deadlines.filter(x => x.month===calMonth && x.day===d).map(x=>x.title).join(', ') : '';
+    grid.appendChild(cell);
+  }
+}
+
+function daysInMonth(y, m) {
+  return new Date(y, m + 1, 0).getDate();
+}
+
+function changeMonth(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0;  calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  renderCalendar();
+  renderTimeline();
+}
+
+// ── TIMELINE ITEMS ──
+function renderTimeline() {
+  // Show deadlines for next ~3 months from current calMonth
+  const items = [];
+  for (let offset = 0; offset < 3; offset++) {
+    let m = (calMonth + offset) % 12;
+    let y = calYear + Math.floor((calMonth + offset) / 12);
+    deadlines.filter(d => d.month === m).forEach(d => {
+      items.push({ ...d, dispMonth: m, dispYear: y });
+    });
+  }
+  // Sort by date
+  items.sort((a,b) => {
+    const da = new Date(a.dispYear, a.dispMonth, a.day);
+    const db = new Date(b.dispYear, b.dispMonth, b.day);
+    return da - db;
+  });
+
+  const container = document.getElementById('tlItems');
+  container.innerHTML = '';
+
+  if (items.length === 0) {
+    container.innerHTML = '<div style="padding:16px;text-align:center;font-size:12px;color:var(--text-muted);">No upcoming deadlines</div>';
+    return;
+  }
+
+  items.forEach((item, i) => {
+    const date = new Date(item.dispYear, item.dispMonth, item.day);
+    const dayName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][date.getDay()];
+    const isPast = date < today;
+
+    const el = document.createElement('div');
+    el.className = 'tl-item';
+    el.style.animationDelay = (i * 0.06) + 's';
+    if (isPast) el.style.opacity = '0.5';
+    el.onclick = () => showPage(item.page);
+    el.innerHTML = `
+      <div class="tl-date-box">
+        <div class="tl-day-num">${String(item.day).padStart(2,'0')}</div>
+        <div class="tl-day-name">${MONTHS[item.dispMonth].slice(0,3)}</div>
+      </div>
+      <div class="tl-divider"></div>
+      <div class="tl-info">
+        <div class="tl-item-title">${item.title}</div>
+        <div class="tl-item-sub">${item.sub}</div>
+        <div class="tl-item-time">
+          <span class="tl-time-badge ${item.badge}">${isPast ? '✓ Past' : dayName}</span>
+        </div>
+      </div>`;
+    container.appendChild(el);
+  });
+}
+
+// ── NAVIGATION ──
+function showPage(pageId, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + pageId)?.classList.add('active');
+  (el || document.querySelector(`.nav-item[data-page="${pageId}"]`))?.classList.add('active');
+  closeSidebar();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── SIDEBAR ──
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
+// ── SECTION TOGGLE ──
+function toggleSection(id) {
+  const body = document.getElementById('body-' + id);
+  const tog  = document.getElementById('tog-' + id);
+  if (body && tog) {
+    if (body.classList.contains('collapsed')) { body.classList.remove('collapsed'); tog.textContent = '▲'; }
+    else { body.classList.add('collapsed'); tog.textContent = '▼'; }
+  }
+}
+
+// ── TOAST ──
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+
+// ── SUSTAINABILITY FORM ──
+// Submit / Edit row actions
+let pendingSubmitBtn = null;
+
+function submitRow(btn) {
+  const row = btn.closest('.sust-qrow');
+  const icon = row.querySelector('.sust-icon');
+  if (icon) { icon.className = 'sust-icon pending'; icon.textContent = '⏳'; }
+  const dateCell = row.querySelector('.sust-date');
+  if (dateCell) dateCell.innerHTML = `<strong>${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</strong>`;
+  btn.className = 'sust-edit-btn';
+  btn.textContent = '✏ Edit';
+  btn.onclick = function(e) { editRow(this); e.stopPropagation(); };
+  showToast('✓ Answer saved — click Save Changes to submit all');
+}
+
+function editRow(btn) {
+  const row = btn.closest('.sust-qrow');
+  // Switch back to editable state — change Edit → Submit, status → pending
+  btn.className = 'sust-submit-btn';
+  btn.textContent = 'Submit';
+  btn.onclick = function(e) { submitRow(this); e.stopPropagation(); };
+  const icon = row.querySelector('.sust-icon');
+  if (icon) { icon.className = 'sust-icon pending'; icon.textContent = '⏳'; }
+  // Enable all inputs in this row
+  row.querySelectorAll('input,textarea,select').forEach(el => el.disabled = false);
+  showToast('✏ Row unlocked for editing');
+}
+
+function openModal() {
+  document.getElementById('submitModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('submitModal')) return;
+  document.getElementById('submitModal').classList.remove('open');
+  document.body.style.overflow = '';
+  pendingSubmitBtn = null;
+}
+
+function confirmSubmit() {
+  document.getElementById('submitModal').classList.remove('open');
+  document.body.style.overflow = '';
+  saveForm();
+  pendingSubmitBtn = null;
+}
+
+
+const sustDefs = [
+  { q:'Annual Report publication', def:'An annual report is a comprehensive report on an institution\'s activities and financial performance throughout the preceding year. It should be publicly accessible on your institution\'s website.' },
+  { q:'Annual report URL', def:'Provide the direct URL to the most recent published annual report. This should link to a permanent, publicly accessible document.' },
+  { q:'Sustainability / Climate Action Policy (ES4)', def:'A formal institutional policy document that outlines your institution\'s commitment to environmental sustainability and/or climate action. Must be publicly available with a permanent URL.' },
+  { q:'Environmental Training (ES*)', def:'Dedicated training programmes specifically focused on environmental sustainability topics — not general induction training. Must clearly identify environmental sustainability as a dedicated component.' },
+  { q:'Sustainable Procurement / Investment Policy (ES4)', def:'A policy that applies environmental and/or social criteria to the procurement of goods and services, or to the management of institutional investments and endowments.' },
+  { q:'GHG Emissions Reporting (ES7)', def:'Scope 1 = direct emissions from owned/controlled sources. Scope 2 = indirect emissions from purchased electricity/heat. Scope 3 = all other indirect emissions in the value chain. Report in tonnes of CO₂ equivalent (tCO₂e).' },
+  { q:'Environmental Education & Research (EE3 / ER3)', def:'Courses that teach specifically on climate science or environmental sustainability, linked to officially recognised credits (e.g. ECTS) or a recognised qualification. Research centres must have dedicated FTE staff.' },
+  { q:'Faculty Staff Gender Data (EQ3)', def:'Total number of faculty staff (academic/teaching staff) reported by gender. Use headcount rather than FTE. Include all academic staff on your institutional payroll.' },
+  { q:'EDI Policy (EQ5)', def:'An Equality, Diversity and Inclusion policy outlining your institution\'s commitment to creating an environment free from discrimination. Must reference protected characteristics as defined in equality legislation.' },
+  { q:'Disability Support Services (EQ7)', def:'Services specifically designed to support students and/or staff with disabilities. Evidence should demonstrate accessibility infrastructure, dedicated offices, or support programmes.' },
+  { q:'Knowledge Exchange — Community Outreach (KE2)', def:'Projects where your institution actively delivers educational, health, or community engagement services to the local community. Evidence must show external community impact, not internal campus activities.' },
+  { q:'Health and Wellbeing Services (HW2)', def:'Services and provisions accessible to both students and staff. Must be formally offered by the institution — not just links to external providers. Evidence should include a permanent URL to a relevant webpage.' },
+  { q:'EDI Committee / Anti-Bribery Policy (GG1 / GG7)', def:'GG1: A formally constituted committee, office or designated officer with a mandate to advance equality, diversity and inclusion. GG7: A documented policy prohibiting bribery and corruption, reviewed within the last 3 years.' },
+  { q:'Sustainability Staff / Committee (GG*)', def:'A staff member or team with a designated role explicitly focused on advancing sustainable development within the institution. Volunteer or ad hoc sustainability champions do not qualify.' },
+  { q:'Financial Reports / Student Representation (GG4 / GG6)', def:'GG4: Annual financial statements that are publicly available and include income, expenditure, borrowing, and surplus/deficit. GG6: Formal student representation on the institution\'s governing body with voting rights.' },
+  { q:'Water and Energy Consumption', def:'Total institutional water consumption in cubic metres (m³) and energy consumption in kilowatt-hours (kWh) for the most recent full reporting year. Use utility bills or metered data from your estates/facilities team.' },
+  { q:'Scholarships and Financial Aid', def:'A scholarship covering 100% of fees means all tuition fees are fully paid. Scholarships covering at least 50% means half or more of the full tuition fee is covered. Count individual students, not awards.' },
+];
+
+let selectedRow = null;
+let currentSpTab = 'def';
+
+function selectRow(row) {
+  // Remove previous selection
+  if (selectedRow && selectedRow !== row) {
+    selectedRow.classList.remove('selected');
+  }
+  // Toggle same row
+  if (selectedRow === row) {
+    row.classList.remove('selected');
+    selectedRow = null;
+    document.getElementById('sp-content').textContent = 'Select a question row to see its definition and guidance here.';
+    document.getElementById('sp-q-title').textContent = 'Click any question to see its definition';
+    return;
+  }
+  row.classList.add('selected');
+  selectedRow = row;
+
+  // Update side panel
+  const defIdx = parseInt(row.dataset.def) || 0;
+  const def = sustDefs[defIdx] || sustDefs[0];
+  document.getElementById('sp-q-title').textContent = def.q;
+  if (currentSpTab === 'def') {
+    document.getElementById('sp-content').textContent = def.def;
+  }
+}
+
+function closeSidePanel() {
+  if (selectedRow) { selectedRow.classList.remove('selected'); selectedRow = null; }
+  document.getElementById('sp-content').textContent = 'Select a question row to see its definition and guidance here.';
+  document.getElementById('sp-q-title').textContent = 'Click any question to see its definition';
+}
+
+function switchSpTab(tab, el) {
+  currentSpTab = tab;
+  document.querySelectorAll('.sust-sp-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  if (tab === 'hist') {
+    document.getElementById('sp-content').textContent = 'No submission history available for this indicator yet.';
+  } else if (selectedRow) {
+    const defIdx = parseInt(selectedRow.dataset.def) || 0;
+    document.getElementById('sp-content').textContent = sustDefs[defIdx]?.def || '';
+  } else {
+    document.getElementById('sp-content').textContent = 'Select a question row to see its definition and guidance here.';
+  }
+}
+
+function openLink(id) {
+  const val = document.getElementById(id)?.value.trim();
+  if (val && val.startsWith('http')) { window.open(val, '_blank'); }
+  else { showToast('Please enter a valid URL first'); }
+}
+
+function wordCount(el, counterId, max) {
+  const words = el.value.trim() === '' ? 0 : el.value.trim().split(/\s+/).length;
+  const counter = document.getElementById(counterId);
+  if (counter) {
+    counter.textContent = words + ' / ' + max + ' words';
+    counter.style.color = words > max ? '#E74C3C' : '';
+  }
+}
+
+function saveForm() {
+  let count = 0;
+  document.querySelectorAll('.sust-qrow').forEach(row => {
+    const anyFilled = Array.from(row.querySelectorAll('input:not([type=radio]):not([type=checkbox]),textarea'))
+      .some(i => i.value && i.value.trim());
+    const icon = row.querySelector('.sust-icon');
+    if (icon && icon.classList.contains('none') && anyFilled) {
+      icon.textContent = '⏳'; icon.className = 'sust-icon pending';
+      const dateCell = row.querySelector('.sust-date');
+      if (dateCell) dateCell.innerHTML = `<strong>${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</strong>`;
+      count++;
+    }
+  });
+  showToast('✓ Changes saved successfully!' + (count ? ` (${count} fields updated)` : ''));
+}
+
+// ── KEYBOARD ──
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    if (document.getElementById('submitModal').classList.contains('open')) {
+      document.getElementById('submitModal').classList.remove('open');
+      document.body.style.overflow = '';
+      pendingSubmitBtn = null;
+    }
+  }
+});
+
+// ── WUR FORM JS ──
+function wurConfirmSubmit() {
+  document.getElementById('wurSubmitModal').classList.remove('open');
+  document.body.style.overflow = '';
+  const wurPage = document.getElementById('page-qs-wur');
+  const today = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  wurPage.querySelectorAll('.sust-qrow').forEach(row => {
+    const icon = row.querySelector('.sust-icon');
+    const hasData = [...row.querySelectorAll('input,select')].some(el => el.value && el.value.trim() && el.value !== '— select —');
+    if (hasData && icon) {
+      icon.className = 'sust-icon accepted'; icon.textContent = '✓';
+      const dateCell = row.querySelector('.sust-date');
+      if (dateCell) dateCell.innerHTML = `<strong>${today}</strong>`;
+      const btn = row.querySelector('.sust-submit-btn');
+      if (btn) {
+        btn.className = 'sust-edit-btn'; btn.textContent = '✏ Edit';
+        btn.onclick = function(e){ editRow(this); e.stopPropagation(); };
+      }
+      row.querySelectorAll('input,select').forEach(el => el.disabled = true);
+    }
+  });
+  showToast('✓ QS WUR data submitted successfully!');
+}
+
+const wurDefs = {
+  wur0:  { title:'Annual Report Publication', body:'Indicates whether the institution publishes an annual report publicly. Used to verify institutional transparency and governance.' },
+  wur1:  { title:'Annual Report Link', body:'A direct URL or uploaded file to the most recent annual report. Must be publicly accessible at time of submission.' },
+  wur2:  { title:'Faculty Staff (Total)', body:'Total number of academic faculty members including full-time and part-time staff across all faculties.' },
+  wur3:  { title:'Faculty Staff Male', body:'Number of male-identifying academic faculty, reported as headcount (HC) and full-time equivalent (FTE).' },
+  wur4:  { title:'Faculty Staff Female', body:'Number of female-identifying academic faculty, reported as headcount (HC) and full-time equivalent (FTE).' },
+  wur5:  { title:'Faculty Staff Other', body:'Faculty staff identifying outside binary gender categories, reported as HC and FTE.' },
+  wur6:  { title:'International Faculty Staff', body:'Faculty who are citizens of a country other than the host country. Includes visiting and exchange academics.' },
+  wur7:  { title:'Undergraduate Students', body:'Total students enrolled in undergraduate (bachelor\'s level) programmes.' },
+  wur8:  { title:'International UG Students', body:'Undergraduate students who are not citizens of the host country.' },
+  wur9:  { title:'UG Exchange Students — Inbound', body:'Overseas students temporarily enrolled via an exchange agreement at the undergraduate level.' },
+  wur10: { title:'UG Exchange Students — Outbound', body:'Undergraduate students from this institution temporarily studying abroad at partner universities.' },
+  wur11: { title:'Postgraduate Students', body:'Total enrolment in master\'s, doctoral, and equivalent postgraduate programmes.' },
+  wur12: { title:'International PG Students', body:'Postgraduate students holding citizenship of a country other than the host country.' },
+  wur13: { title:'PG Inbound Exchange Students', body:'Postgraduate-level students arriving on exchange from overseas partner institutions.' },
+  wur14: { title:'PG Outbound Exchange Students', body:'Postgraduate-level students studying abroad at partner universities.' },
+  wur15: { title:'Students — Overall', body:'Combined total of all enrolled students across all levels of study.' },
+  wur16: { title:'International Students Overall', body:'All international students across all levels of study combined.' },
+  wur17: { title:'Distance Learning Students', body:'Students enrolled in fully online or distance-learning programmes.' },
+  wur18: { title:'International Distance Students', body:'International students enrolled in distance-learning programmes.' },
+  wur19: { title:'Exchange Students Inbound', body:'All inbound exchange students across all levels of study.' },
+  wur20: { title:'Exchange Students Outbound', body:'All outbound exchange students across all levels of study.' },
+  wur21: { title:'Students Male', body:'Total male-identifying students across all programmes and levels.' },
+  wur22: { title:'Students Female', body:'Total female-identifying students across all programmes and levels.' },
+  wur23: { title:'Students Other Gender', body:'Total students identifying outside binary gender categories.' },
+  wur24: { title:'Countries of Origin', body:'Number of distinct countries represented in the student body, indicating international diversity breadth.' },
+  wur25: { title:'UG Programmes Online', body:'Number of undergraduate degree programmes fully delivered in online format.' },
+  wur26: { title:'PG Programmes Offered', body:'Total number of postgraduate degree programmes offered by the institution.' },
+  wur27: { title:'UG Programmes Online (subset)', body:'Subset count of undergraduate online programmes in distance-learning format.' },
+  wur28: { title:'Student Continuation Rate', body:'Percentage of students who continue to the next year without withdrawing or interrupting.' },
+  wur29: { title:'PG Programmes Online', body:'Number of postgraduate programmes delivered fully online or by distance.' },
+  wur30: { title:'Student Retention Rate', body:'Percentage of students who complete their degree within the expected timeframe.' },
+  wur31: { title:'Completion Rate', body:'Percentage of enrolled students who successfully graduate.' },
+  wur32: { title:'First Generation Learners', body:'Percentage of students who are the first in their immediate family to attend higher education.' },
+  wur33: { title:'Non-Degree Online Courses', body:'Total non-degree, micro-credential, or vocational online courses allowing credit transfer to degrees.' },
+  wur34: { title:'UG Fees — Domestic', body:'Average annual tuition fee charged to domestic (home-country) undergraduate students.' },
+  wur35: { title:'UG Fees — International', body:'Average annual tuition fee charged to international undergraduate students.' },
+  wur36: { title:'PG Fees — Domestic', body:'Average annual tuition fee for domestic postgraduate students.' },
+  wur37: { title:'PG Fees — International', body:'Average annual tuition fee for international postgraduate students.' },
+  wur38: { title:'Overall Fees — Domestic', body:'Blended average of all programme fees for domestic students across all levels.' },
+  wur39: { title:'Overall Fees — International', body:'Blended average of all programme fees for international students across all levels.' },
+  wur40: { title:'Full Scholarship Recipients', body:'Number of students receiving scholarships covering 100% of tuition fees.' },
+  wur41: { title:'Partial Scholarship Recipients', body:'Number of students receiving scholarships covering at least 50% of tuition fees.' },
+  wur42: { title:'Graduate Employment Numbers', body:'Headcount of graduates tracked in employment surveys including FT and PT outcomes.' },
+  wur43: { title:'Student Employment Numbers', body:'Number of currently enrolled students also in employment.' },
+  wur44: { title:'Median Graduate Salary (USD)', body:'Median annual salary of graduates in full-time employment, converted to USD.' },
+  wur45: { title:'Employment Rate (%)', body:'Percentage of graduates in full-time employment 12–15 months after graduation.' },
+  wur46: { title:'Employment Data Date', body:'Date on which employment outcome data was collected or survey was conducted.' },
+  wur47: { title:'Employment Survey Evidence', body:'Link to the external or internal graduate employment survey conducted 12–15 months post-graduation.' },
+  wur48: { title:'Survey Year', body:'Calendar year in which the employment survey used to support this submission was conducted.' },
+  wur49: { title:'Evidence Link', body:'Supporting documentation or URL providing evidence for employment outcome data submitted.' },
+  wur50: { title:'Students Surveyed', body:'Total number of students included in the employment outcome survey used as the data source.' },
+};
+
+// Patch selectRow to support WUR side panel
+(function(){
+  const orig = window.selectRow || selectRow;
+  window.selectRowOrig = orig;
+})();
+
+document.addEventListener('click', function(e){
+  const row = e.target.closest('.sust-qrow');
+  if (!row) return;
+  const page = row.closest('.page');
+  if (!page || page.id !== 'page-qs-wur') return;
+  e.stopPropagation();
+  const defKey = row.dataset.def;
+  if (!defKey || !defKey.startsWith('wur')) return;
+  const allRows = page.querySelectorAll('.sust-qrow');
+  const wasActive = row.classList.contains('sp-active');
+  allRows.forEach(r => r.classList.remove('sp-active'));
+  if (wasActive) { document.getElementById('wurSidePanel').classList.remove('sp-visible'); return; }
+  row.classList.add('sp-active');
+  const def = wurDefs[defKey];
+  if (def) {
+    document.getElementById('wur-sp-title').textContent = def.title;
+    document.getElementById('wur-sp-body').innerHTML = `<div style="padding:14px;font-size:13px;line-height:1.65;color:var(--text)">${def.body}</div>`;
+    document.getElementById('wurSidePanel').classList.add('sp-visible');
+  }
+}, true);
+
+// ── INIT ──
+renderCalendar();
+renderTimeline();
+
+// Greeting
+(function(){
+  const h = new Date().getHours();
+  const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  const el = document.getElementById('hw-greeting');
+  if (el) el.textContent = g;
+})();
+
+// Animate stat counters
+function animateCounters() {
+  document.querySelectorAll('.hsc-val[data-count]').forEach(el => {
+    const target = parseInt(el.dataset.count);
+    let start = 0;
+    const step = Math.ceil(target / 20);
+    const interval = setInterval(() => {
+      start = Math.min(start + step, target);
+      el.textContent = start;
+      if (start >= target) clearInterval(interval);
+    }, 40);
+  });
+}
+
+// Animate bar chart
+function animateHomeBars() {
+  document.querySelectorAll('.h-bar').forEach((bar, i) => {
+    const targetH = parseFloat(bar.dataset.h);
+    const pct = bar.dataset.pct;
+    setTimeout(() => {
+      bar.style.transition = 'y 0.9s cubic-bezier(.4,0,.2,1), height 0.9s cubic-bezier(.4,0,.2,1)';
+      bar.setAttribute('y', 170 - targetH);
+      bar.setAttribute('height', targetH);
+      const pctLabel = document.getElementById('bpct-' + i);
+      if (pctLabel) {
+        pctLabel.setAttribute('y', 170 - targetH - 5);
+        pctLabel.style.opacity = '1';
+      }
+    }, i * 100 + 80);
+  });
+}
+
+// Animate progress rings when progress page opens
+function animateRings() {
+  document.querySelectorAll('.prog-ring').forEach(ring => {
+    const pct = parseFloat(ring.dataset.pct) || 0;
+    const circumference = 414;
+    const offset = circumference - (pct / 100) * circumference;
+    ring.style.transition = 'stroke-dashoffset 1.4s cubic-bezier(0.4,0,0.2,1)';
+    ring.style.strokeDashoffset = offset;
+  });
+}
+
+// Trigger on home page visit
+const _origShowPage = window.showPage;
+window.showPage = function(pageId, el) {
+  _origShowPage(pageId, el);
+  if (pageId === 'progress') setTimeout(animateRings, 80);
+  if (pageId === 'home') { setTimeout(animateCounters, 80); setTimeout(animateHomeBars, 120); }
+};
+
+// Run on initial load (home is first page shown via sidebar click)
+setTimeout(() => { animateCounters(); animateHomeBars(); }, 300);
+</script>
+</body>
+</html>

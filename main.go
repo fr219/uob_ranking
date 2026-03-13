@@ -3,51 +3,71 @@ package main
 import (
 	"database/sql"
 	"log"
+	"net/http"
 	"os"
 
-	"uob-rankings/db" // Your local db package
+	"uob-rankings/db"        // Your db package
+	"uob-rankings/handlers"  // Your handlers package
 
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
-	"github.com/joho/godotenv" // 1. Import godotenv
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	// 2. Load the .env file
-	// This looks for a file named ".env" in the current folder
+	// 1. Load environment variables
 	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using system environment variables only")
+		log.Println("⚠️  No .env file found, using system environment variables")
 	}
 
-	// 3. Now get the variables
-	dbUrl := os.Getenv("TURSO_DATABASE_URL")
+	// 2. Get database credentials from env
+	dbURL := os.Getenv("TURSO_DATABASE_URL")
 	authToken := os.Getenv("TURSO_AUTH_TOKEN")
 
-	// 4. Check if they exist
-	if dbUrl == "" {
-		log.Fatal("❌ TURSO_DATABASE_URL is not set! Check your .env file.")
-	}
-	if authToken == "" {
-		log.Fatal("❌ TURSO_AUTH_TOKEN is not set! Check your .env file.")
+	if dbURL == "" {
+		log.Fatal("❌ TURSO_DATABASE_URL not set")
 	}
 
-	// 5. Connect to Turso
-	dsn := dbUrl + "?authToken=" + authToken
+	// 3. Connect to Turso (dbConn is now in main() scope)
+	dsn := dbURL + "?authToken=" + authToken
 	dbConn, err := sql.Open("libsql", dsn)
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		log.Fatal("❌ Failed to connect to database:", err)
 	}
 	defer dbConn.Close()
 
-	// 6. Test Connection
+	// 4. Test connection
 	if err := dbConn.Ping(); err != nil {
-		log.Fatal("Failed to ping database:", err)
+		log.Fatal("❌ Failed to ping database:", err)
 	}
-	log.Println("✅ Connected to Turso DB successfully!")
+	log.Println("✅ Connected to Turso DB")
 
-	// 7. Initialize Schema
+	// 5. Initialize schema (optional: only run once or in dev)
 	if err := db.InitDB(dbConn); err != nil {
-		log.Fatal("Failed to initialize DB:", err)
+		log.Fatal("❌ Failed to initialize DB:", err)
 	}
 
-	log.Println("🚀 Server ready...")
+	// 6. Setup HTTP router
+	mux := http.NewServeMux()
+
+	// Serve static files (HTML, CSS, JS, images)
+	fs := http.FileServer(http.Dir("static"))
+	mux.Handle("/static/", http.StripPrefix("/static/", fs))
+
+	// Serve login page at root
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/login.html")
+	})
+
+	// ✅ API Routes — dbConn is in scope here!
+	mux.HandleFunc("/api/login", handlers.LoginHandler(dbConn))
+	mux.HandleFunc("/api/logout", handlers.LogoutHandler(dbConn))
+
+	// 7. Start server
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Printf("🚀 Server starting on http://localhost:%s", port)
+	log.Fatal(http.ListenAndServe(":"+port, mux))
 }
