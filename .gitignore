@@ -1,6 +1,0 @@
-# Ignore environment variables
-.env
-
-# Ignore Go build files
-server
-*.exe
