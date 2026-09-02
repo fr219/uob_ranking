@@ -1,103 +1,83 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import Cookies from 'js-cookie';
+import api from '../utils/api';
 
 const AuthContext = createContext(null);
-const SESSION_KEY = 'uob_auth_session';
+const TOKEN_KEY = 'uob_auth_token';
+const USER_KEY = 'uob_auth_user';
 
-const DEMO_ADMIN = {
-  id: 1,
-  name: 'Admin User',
-  email: 'admin@uob.example',
-  role: 'admin'
-};
-
-const DEMO_USER = {
-  id: 2,
-  name: 'Regular User',
-  email: 'user@uob.example',
-  role: 'user'
-};
+function storedUser() {
+  try {
+    return JSON.parse(window.localStorage.getItem(USER_KEY) || 'null');
+  } catch {
+    return null;
+  }
+}
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    try {
-      const savedUser = window.localStorage.getItem(SESSION_KEY);
-      return savedUser ? JSON.parse(savedUser) : null;
-    } catch (error) {
-      return null;
-    }
-  });
-
+  const [user, setUser] = useState(storedUser);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const sessionCookie = Cookies.get('uob_session');
-
-    if (!user && sessionCookie) {
-      try {
-        setUser(JSON.parse(sessionCookie));
-      } catch (error) {
-        Cookies.remove('uob_session');
-      }
+    const token = window.localStorage.getItem(TOKEN_KEY);
+    if (!token) {
+      setLoading(false);
+      return;
     }
 
-    if (user) {
-      Cookies.set('uob_session', JSON.stringify(user), {
-        sameSite: 'Lax',
-        secure: window.location.protocol === 'https:',
-        expires: 7
-      });
-      window.localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-    } else {
-      Cookies.remove('uob_session');
-      window.localStorage.removeItem(SESSION_KEY);
-    }
+    api.get('/auth/me')
+      .then(({ data }) => {
+        setUser(data.user);
+        window.localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+      })
+      .catch(() => {
+        setUser(null);
+        window.localStorage.removeItem(TOKEN_KEY);
+        window.localStorage.removeItem(USER_KEY);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
-    setLoading(false);
-  }, [user]);
-
-  const login = ({ email, password, role = 'user' }) => {
-    const nextUser = {
-      id: role === 'admin' ? 1 : 2,
-      name: role === 'admin' ? DEMO_ADMIN.name : DEMO_USER.name,
-      email,
-      role: role === 'admin' ? 'admin' : 'user'
-    };
-
-    if (password && email) {
-      setUser(nextUser);
-      return nextUser;
-    }
-
-    setUser(role === 'admin' ? DEMO_ADMIN : DEMO_USER);
-    return role === 'admin' ? DEMO_ADMIN : DEMO_USER;
+  const login = async (credentials) => {
+    const { data } = await api.post('/auth/login', credentials);
+    setUser(data.user);
+    window.localStorage.setItem(TOKEN_KEY, data.token);
+    window.localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+    return data.user;
   };
 
-  const logout = () => {
-    setUser(null);
+  const register = async (details) => {
+    const { data } = await api.post('/auth/register', details);
+    setUser(data.user);
+    window.localStorage.setItem(TOKEN_KEY, data.token);
+    window.localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+    return data.user;
   };
 
-  const value = useMemo(
-    () => ({
-      user,
-      loading,
-      isAuthenticated: Boolean(user),
-      isAdmin: user?.role === 'admin',
-      login,
-      logout
-    }),
-    [user, loading]
-  );
+  const logout = async () => {
+    try {
+      if (window.localStorage.getItem(TOKEN_KEY)) await api.post('/auth/logout');
+    } finally {
+      setUser(null);
+      window.localStorage.removeItem(TOKEN_KEY);
+      window.localStorage.removeItem(USER_KEY);
+    }
+  };
+
+  const value = useMemo(() => ({
+    user,
+    loading,
+    isAuthenticated: Boolean(user),
+    isAdmin: user?.role === 'admin',
+    login,
+    register,
+    logout
+  }), [user, loading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
   const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 }
