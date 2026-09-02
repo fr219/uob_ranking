@@ -1,0 +1,35 @@
+.admin-page .sidebar nav a,
+.admin-page .sidebar nav button {
+  display: block;
+}
+
+.admin-page .sidebar nav button {
+  margin-top: 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+}
+
+.admin-page .main-panel {
+  background: linear-gradient(180deg, rgba(244, 247, 251, 0.7), rgba(240, 246, 255, 0.9));
+}
+
+.admin-page .card {
+  border-radius: 16px;
+}
+
+.admin-page .table-wrap table {
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.admin-page .table-wrap th,
+.admin-page .table-wrap td {
+  font-size: 0.94rem;
+}
+
+.admin-page .stat-card {
+  background: linear-gradient(180deg, #fff 0%, #f5f9ff 100%);
+}
+
+.admin-page .badge {
+  font-size: 0.72rem;
+}
